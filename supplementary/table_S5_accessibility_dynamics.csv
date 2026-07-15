@@ -1,0 +1,56 @@
+gene_symbol,category,accessibility_pattern,accessible_homeostatic,accessible_PP_naive,accessible_PL_acute_LPS,accessible_LL_tolerized,accessible_sham_WT,accessible_stroke_WT,n_states_accessible,notes
+Tfeb,autophagy_lysosome,surgical_stroke_context,False,False,False,False,True,False,1,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham."
+Tfe3,autophagy_lysosome,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Lamp1,autophagy_lysosome,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Lamp2,autophagy_lysosome,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Ctsd,autophagy_lysosome,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Ctsb,autophagy_lysosome,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Mcoln1,autophagy_lysosome,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Atp6v1h,autophagy_lysosome,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Sqstm1,autophagy_lysosome,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Becn1,autophagy_lysosome,surgical_stroke_context,False,True,False,False,True,True,3,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: naive; sham; stroke."
+Map1lc3b,autophagy_lysosome,surgical_stroke_context,False,False,True,False,True,False,2,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: acute LPS; sham."
+Atg5,autophagy_lysosome,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Atg7,autophagy_lysosome,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Il10,inflammation,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Tgfb1,inflammation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Il1b,inflammation,surgical_stroke_context,False,False,True,False,True,False,2,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: acute LPS; sham."
+Tnf,inflammation,surgical_stroke_context,False,False,True,True,True,True,4,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: acute LPS; tolerized; sham; stroke."
+Nfkb1,inflammation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Il1rn,inflammation,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Il4ra,inflammation,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Trem2,phagocytosis,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Tyrobp,phagocytosis,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Mertk,phagocytosis,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Cd36,phagocytosis,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Megf10,phagocytosis,other_pattern,True,False,False,False,False,True,2,Non-canonical pattern: accessible in homeostatic; stroke.
+Axl,phagocytosis,surgical_stroke_context,False,False,False,False,True,True,2,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham; stroke."
+Abca1,lipid_metabolism,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Abcg1,lipid_metabolism,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Pparg,lipid_metabolism,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Nr1h3,lipid_metabolism,surgical_stroke_context,False,False,False,False,False,True,1,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: stroke."
+Lpl,lipid_metabolism,surgical_stroke_context,False,False,False,False,True,False,1,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham."
+Apoe,lipid_metabolism,surgical_stroke_context,False,False,False,False,True,True,2,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham; stroke."
+Lipa,lipid_metabolism,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Bdnf,neuroprotection,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Igf1,neuroprotection,surgical_stroke_context,False,False,False,False,True,False,1,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham."
+Csf1,neuroprotection,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Gdnf,neuroprotection,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Vegfa,neuroprotection,surgical_stroke_context,False,False,False,True,True,True,3,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: tolerized; sham; stroke."
+P2ry12,microglial_identity,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Tmem119,microglial_identity,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Hexb,microglial_identity,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Cx3cr1,microglial_identity,inflammation_gained,False,True,True,True,True,True,5,Closed in homeostatic microglia; accessible in activated/injury-associated states.
+Sall1,microglial_identity,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Siglech,microglial_identity,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Spi1,microglial_identity,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Irf8,microglial_identity,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Csf1r,microglial_identity,surgical_stroke_context,False,False,False,False,True,True,2,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: sham; stroke."
+Grn,neuroprotection,surgical_stroke_context,False,True,False,True,True,True,4,"Accessibility detected in at least one sham or stroke dataset state; this is a predictive state-context label, not evidence of injury-driven accessibility: naive; tolerized; sham; stroke."
+Hdac1,epigenetic_regulation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Hdac2,epigenetic_regulation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Tet2,epigenetic_regulation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Dnmt3a,epigenetic_regulation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.
+Arg1,inflammation,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Chil3,inflammation,never_accessible,False,False,False,False,False,False,0,No promoter accessibility detected under the atlas midpoint criterion.
+Mrc1,inflammation,constitutively_open,True,True,True,True,True,True,6,Promoter accessible in all six surveyed states.

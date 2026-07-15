@@ -1,0 +1,7 @@
+cas	state	both_targetable	pam_bearing_not_targetable	chrom_only_impossible	pam_absent	lost_fraction_pam_bearing
+HEAL_Un1Cas12f1	LL_tolerized	27	22	0	6	0.4490
+HEAL_Un1Cas12f1	PL_acute_LPS	27	22	0	6	0.4490
+HEAL_Un1Cas12f1	PP_naive	25	24	0	6	0.4898
+HEAL_Un1Cas12f1	homeostatic	18	31	0	6	0.6327
+HEAL_Un1Cas12f1	sham_WT	36	13	0	6	0.2653
+HEAL_Un1Cas12f1	stroke_WT	33	16	0	6	0.3265

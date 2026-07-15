@@ -1,0 +1,56 @@
+gene_symbol,gene_name,category,priority,justification,accessibility_pattern
+Tfeb,Transcription factor EB,autophagy_lysosome,critical,"Master regulator of autophagy-lysosomal biogenesis (Sardiello 2009, Settembre 2011)",surgical_stroke_context
+Tfe3,Transcription factor E3,autophagy_lysosome,high,Paralog of TFEB; activates overlapping CLEAR network genes (Settembre 2011),constitutively_open
+Lamp1,Lysosomal-associated membrane protein 1,autophagy_lysosome,medium,Lysosomal membrane glycoprotein; functional marker of lysosomal biogenesis,constitutively_open
+Lamp2,Lysosomal-associated membrane protein 2,autophagy_lysosome,medium,Lysosomal membrane protein; chaperone-mediated autophagy receptor,constitutively_open
+Ctsd,Cathepsin D,autophagy_lysosome,medium,Cathepsin D; major lysosomal aspartyl protease,inflammation_gained
+Ctsb,Cathepsin B,autophagy_lysosome,medium,Cathepsin B; lysosomal cysteine protease involved in debris clearance,inflammation_gained
+Mcoln1,Mucolipin 1,autophagy_lysosome,high,TRPML1 lysosomal Ca2+ channel; upstream activator of TFEB,constitutively_open
+Atp6v1h,V-type proton ATPase subunit H,autophagy_lysosome,medium,Vacuolar ATPase subunit H; lysosomal acidification,never_accessible
+Sqstm1,Sequestosome 1,autophagy_lysosome,medium,p62/Sequestosome-1; selective autophagy receptor,constitutively_open
+Becn1,Beclin 1,autophagy_lysosome,medium,Beclin-1; class III PI3K complex for autophagy initiation,surgical_stroke_context
+Map1lc3b,MAP1 light chain 3 beta,autophagy_lysosome,medium,LC3B; autophagosome membrane marker,surgical_stroke_context
+Atg5,Autophagy related 5,autophagy_lysosome,medium,Autophagy protein 5; conjugation system for autophagosome elongation,inflammation_gained
+Atg7,Autophagy related 7,autophagy_lysosome,medium,Autophagy protein 7; E1-like enzyme for Atg conjugation,never_accessible
+Il10,Interleukin 10,inflammation,high,Anti-inflammatory cytokine; suppresses microglial activation,never_accessible
+Tgfb1,Transforming growth factor beta 1,inflammation,high,TGF-beta1; immunomodulatory cytokine maintaining CNS homeostasis,constitutively_open
+Il1b,Interleukin 1 beta,inflammation,medium,IL-1beta; key pro-inflammatory cytokine in neuroinflammation,surgical_stroke_context
+Tnf,Tumor necrosis factor,inflammation,medium,TNF-alpha; central pro-inflammatory mediator,surgical_stroke_context
+Nfkb1,Nuclear factor kappa B subunit 1,inflammation,medium,NF-kB p105/p50; master transcriptional regulator of inflammation,constitutively_open
+Il1rn,Interleukin 1 receptor antagonist,inflammation,high,IL-1 receptor antagonist; endogenous anti-inflammatory factor,never_accessible
+Il4ra,Interleukin 4 receptor alpha,inflammation,medium,IL-4 receptor alpha; drives M2/anti-inflammatory polarization,inflammation_gained
+Trem2,Triggering receptor expressed on myeloid cells 2,phagocytosis,critical,Triggering receptor on myeloid cells 2; phagocytosis and AD risk gene,inflammation_gained
+Tyrobp,TYRO protein tyrosine kinase binding protein,phagocytosis,high,DAP12; essential signaling partner of TREM2,inflammation_gained
+Mertk,MER proto-oncogene tyrosine kinase,phagocytosis,high,MerTK receptor kinase; efferocytosis of apoptotic cells,constitutively_open
+Cd36,CD36 molecule,phagocytosis,medium,Scavenger receptor; lipid uptake and debris clearance,never_accessible
+Megf10,Multiple EGF-like domains 10,phagocytosis,medium,Multiple EGF-like domains 10; phagocytic receptor,other_pattern
+Axl,AXL receptor tyrosine kinase,phagocytosis,medium,AXL receptor kinase; TAM family; debris clearance,surgical_stroke_context
+Abca1,ATP binding cassette subfamily A member 1,lipid_metabolism,high,ATP-binding cassette A1; cholesterol efflux transporter,constitutively_open
+Abcg1,ATP binding cassette subfamily G member 1,lipid_metabolism,medium,ATP-binding cassette G1; cholesterol/phospholipid efflux,constitutively_open
+Pparg,Peroxisome proliferator activated receptor gamma,lipid_metabolism,high,PPARgamma; master regulator of lipid metabolism and anti-inflammatory programs,never_accessible
+Nr1h3,Nuclear receptor subfamily 1 group H member 3,lipid_metabolism,medium,LXR-alpha; nuclear receptor regulating cholesterol homeostasis,surgical_stroke_context
+Lpl,Lipoprotein lipase,lipid_metabolism,medium,Lipoprotein lipase; triglyceride hydrolysis,surgical_stroke_context
+Apoe,Apolipoprotein E,lipid_metabolism,high,Apolipoprotein E; lipid transport; major AD genetic risk factor,surgical_stroke_context
+Lipa,Lipase A lysosomal acid type,lipid_metabolism,medium,Lysosomal acid lipase; cholesterol ester hydrolysis,constitutively_open
+Bdnf,Brain derived neurotrophic factor,neuroprotection,high,Brain-derived neurotrophic factor; neuronal survival and plasticity,never_accessible
+Igf1,Insulin like growth factor 1,neuroprotection,high,Insulin-like growth factor 1; neuroprotective signaling,surgical_stroke_context
+Csf1,Colony stimulating factor 1,neuroprotection,medium,Colony stimulating factor 1; microglial survival and proliferation,constitutively_open
+Gdnf,Glial cell derived neurotrophic factor,neuroprotection,medium,Glial-derived neurotrophic factor; motor neuron survival,never_accessible
+Vegfa,Vascular endothelial growth factor A,neuroprotection,medium,VEGF-A; vascular endothelial growth factor; angiogenesis in repair,surgical_stroke_context
+P2ry12,Purinergic receptor P2Y12,microglial_identity,medium,Purinergic receptor P2Y12; homeostatic microglial marker,constitutively_open
+Tmem119,Transmembrane protein 119,microglial_identity,medium,Transmembrane protein 119; homeostatic microglial marker,inflammation_gained
+Hexb,Hexosaminidase subunit beta,microglial_identity,medium,Hexosaminidase B; homeostatic microglial marker,never_accessible
+Cx3cr1,C-X3-C motif chemokine receptor 1,microglial_identity,medium,Fractalkine receptor CX3CR1; microglial identity and neuron-glia signaling,inflammation_gained
+Sall1,Spalt like transcription factor 1,microglial_identity,medium,Transcription factor Sall1; microglial identity maintenance,constitutively_open
+Siglech,Sialic acid binding Ig-like lectin H,microglial_identity,medium,Sialic acid-binding Ig-like lectin H; microglial surface marker,constitutively_open
+Spi1,Spi-1 proto-oncogene,microglial_identity,high,PU.1/SPI1; master transcription factor for myeloid/microglial lineage,never_accessible
+Irf8,Interferon regulatory factor 8,microglial_identity,medium,IRF8; transcription factor for microglial development,constitutively_open
+Csf1r,Colony stimulating factor 1 receptor,microglial_identity,high,CSF1 receptor; essential for microglial survival signaling,surgical_stroke_context
+Grn,Granulin precursor,neuroprotection,high,Progranulin; lysosomal function; FTD risk gene,surgical_stroke_context
+Hdac1,Histone deacetylase 1,epigenetic_regulation,medium,Histone deacetylase 1; epigenetic regulation of gene expression,constitutively_open
+Hdac2,Histone deacetylase 2,epigenetic_regulation,medium,Histone deacetylase 2; epigenetic regulation,constitutively_open
+Tet2,Tet methylcytosine dioxygenase 2,epigenetic_regulation,medium,TET2 DNA demethylase; epigenetic reprogramming in myeloid cells,constitutively_open
+Dnmt3a,DNA methyltransferase 3 alpha,epigenetic_regulation,medium,DNA methyltransferase 3A; de novo DNA methylation,constitutively_open
+Arg1,Arginase 1,inflammation,medium,Arginase 1; M2/anti-inflammatory macrophage marker,never_accessible
+Chil3,Chitinase-like 3,inflammation,medium,Chitinase-like 3 (Ym1); M2 microglial marker,never_accessible
+Mrc1,Mannose receptor C type 1,inflammation,medium,Mannose receptor C type 1 (CD206); M2 marker,constitutively_open

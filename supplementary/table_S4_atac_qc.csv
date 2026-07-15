@@ -1,0 +1,7 @@
+sample_id,srr_accession,condition,dataset,sequencing_mode,replicate_type,total_reads_filtered,alignment_rate,dup_rate,n_peaks_called,FRiP,TSS_enrichment,IDR_reproducible_pct
+gosselin_merged,SRR5617659+SRR5617660,homeostatic,Gosselin_2017,SE 50bp,biological (n=2),27494378,95.3%,39.3-40.8%,61941,0.3001,11.41,64.5%
+PP_merged,SRR14667444+SRR14667445,naive_PP,Zhang_X_2022,PE 2x64bp,technical (n=2),60733175,97.5%,18.2-22.7%,41381,0.2888,13.11,NA (technical reps)
+PL_merged,SRR14667448+SRR14667449,acute_PL,Zhang_X_2022,PE 2x64bp,technical (n=2),60531073,96.6%,18.2-22.7%,40497,0.2713,11.40,NA (technical reps)
+LL_merged,SRR14667450+SRR14667451,tolerized_LL,Zhang_X_2022,PE 2x64bp,technical (n=2),58558107,98.1%,18.2-22.7%,40703,0.2746,11.16,NA (technical reps)
+sham_WT_merged,SRR22516042+SRR22516043,sham_WT,Zhang_L_2024,PE 2x150bp,biological (n=2),45270791,93.5%,12.4-15.1%,51953,0.5707,10.16,64.7%
+stroke_WT_merged,SRR22516044+SRR22516047+SRR22516048,stroke_WT,Zhang_L_2024,PE 2x150bp,biological (n=3),44318946,92.8%,12.4-15.1%,58472,0.4455,9.19,69.4%

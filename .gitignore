@@ -1,0 +1,44 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+.DS_Store
+__pycache__/
+*.pyc
+
+# Large files (bigwigs tracked via description only)
+analysis_results/bigwigs/*.bw
+analysis_results/tss_matrix_*.gz
+analysis_results/tss_matrix_*.tab
+analysis_results/tss.bed
+analysis_results/idr_peaks/*.narrowPeak
+
+# Keep the canonical matrix tracked so figures and audits can run from a clone.
+# Data symlinks (local paths, not portable)
+data/
+
+# Private editorial and submission workflow
+private/
+.private/
+editorial/
+editorial_records/
+submission*/
+cover_letter*
+decision_letter*
+editorial_decision*
+response_letter*
+response_to_reviewers*
+reviewer_response*
+point_by_point_response*
+*.bundle
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+service-account*.json

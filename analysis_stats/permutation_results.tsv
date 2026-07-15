@@ -1,0 +1,7 @@
+state	observed_targetable	observed_pct	mean_shuffled_pct	std_shuffled_pct	p_value	z_score
+homeostatic	39	70.9	2.1	1.9	0.0000	35.91
+PP_naive	36	65.5	1.7	1.7	0.0000	36.64
+PL_acute_LPS	38	69.1	1.8	1.9	0.0000	35.58
+LL_tolerized	38	69.1	1.7	1.7	0.0000	38.48
+sham_WT	45	81.8	3.1	2.4	0.0000	33.44
+stroke_WT	44	80.0	3.1	2.3	0.0000	32.97
