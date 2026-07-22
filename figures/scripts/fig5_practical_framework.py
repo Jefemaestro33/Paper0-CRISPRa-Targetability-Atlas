@@ -1,130 +1,47 @@
 #!/usr/bin/env python3
-"""
-Figure 5: Practical framework for state-aware CRISPRa vector design
-Panel A: Decision tree — uniform styling
-Panel B: TFE3 case study — sgRNAs without misleading score column
-"""
-import csv
-from pathlib import Path
-
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
+import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent.parent
-SGRNA_FILE = ROOT / 'supplementary' / 'table_S3_sgrna_recommendations.csv'
-OUTPUT = Path(__file__).resolve().parent.parent / 'output' / 'fig5.pdf'
-
-BOX_COLOR = '#264653'
+from common import CANDIDATES, STATES, load_atlas, save
 
 
 def main():
-    # Load TFE3 sgRNAs
-    tfe3_sgrnas = []
-    with open(SGRNA_FILE) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if (
-                row['gene_symbol'] == 'Tfe3'
-                and row['cas_ortholog'] == 'HEAL_Un1Cas12f1'
-                and row['atlas_n_targetable_states'] == '6'
-            ):
-                tfe3_sgrnas.append(row)
+    candidates=pd.read_csv(CANDIDATES)
+    rows=candidates[(candidates.gene_symbol=="Tfe3")&(candidates.nuclease_pam_class=="Un1Cas12f1_TTTR")].sort_values("rank").head(5)
+    fig,axes=plt.subplots(1,2,figsize=(7.4,4.55),gridspec_kw={"width_ratios":[.9,1.45]})
+    ax=axes[0]; ax.axis("off")
+    steps=[("1","Choose delivery architecture","Size and payload constraints"),("2","Choose expressed TSS","Canonical + cell-state sensitivity"),("3","Require guide-site support","Complete spacer+PAM in peak"),("4","Inspect robustness","Replicates, depth, caller, context"),("5","Validate experimentally","Activation, function and safety")]
+    for i,(number,title,detail) in enumerate(steps):
+        y=.9-i*.18; patch=FancyBboxPatch((.08,y-.055),.84,.11,boxstyle="round,pad=.02",facecolor="#EAF2F1",edgecolor="#264653")
+        ax.add_patch(patch); ax.text(.13,y,number,ha="center",va="center",fontsize=10,weight="bold",color="#D1495B"); ax.text(.20,y+.018,title,va="center",weight="bold",fontsize=7.3); ax.text(.20,y-.025,detail,va="center",fontsize=6.2,color="#555")
+    ax.set_title("A  Evidence-aware prioritization",loc="left",weight="bold",fontsize=9)
 
-    fig = plt.figure(figsize=(16, 8))
-    gs = fig.add_gridspec(1, 2, wspace=0.35, width_ratios=[1, 1.2])
-
-    # === Panel A: Decision tree — uniform box style ===
-    ax_a = fig.add_subplot(gs[0, 0])
-    ax_a.axis('off')
-    ax_a.set_xlim(0, 10)
-    ax_a.set_ylim(0, 10)
-
-    boxes = [
-        (5, 8.8, 'Step 1\nSelect Cas by packaging\nconstraints (NOT by PAM)'),
-        (5, 6.8, 'Step 2\nVerify promoter accessibility\nvia ATAC-seq in target cell state'),
-        (5, 4.8, 'Step 3\nDesign sgRNAs within\nATAC-seq peaks'),
-        (5, 2.8, 'Step 4\nConsider state-dependence\nof target accessibility'),
-        (5, 0.8, 'Output\nState-aware CRISPRa vector'),
-    ]
-
-    for x, y, text in boxes:
-        bbox = FancyBboxPatch((x - 2.5, y - 0.75), 5.0, 1.5,
-                               boxstyle="round,pad=0.15", facecolor=BOX_COLOR, alpha=0.9,
-                               edgecolor='white', linewidth=2)
-        ax_a.add_patch(bbox)
-        ax_a.text(x, y, text, ha='center', va='center', fontsize=9,
-                  fontweight='bold', color='white', linespacing=1.3)
-
-    for i in range(len(boxes) - 1):
-        y_from = boxes[i][1] - 0.75
-        y_to = boxes[i+1][1] + 0.75
-        ax_a.annotate('', xy=(5, y_to), xytext=(5, y_from),
-                       arrowprops=dict(arrowstyle='->', color='#264653', lw=2.5))
-
-    # Side annotations
-    ax_a.text(8.5, 8.8, 'HEAL (1.5 kb)\nSminiCRa (1.6 kb)\nfor single-AAV',
-              fontsize=7, color='gray', fontstyle='italic', va='center')
-    ax_a.text(8.5, 6.8, 'This atlas or\nequivalent ATAC-seq',
-              fontsize=7, color='gray', fontstyle='italic', va='center')
-    ax_a.text(8.5, 4.8, 'PAMs in peaks,\nnot just in promoter',
-              fontsize=7, color='gray', fontstyle='italic', va='center')
-    ax_a.text(8.5, 2.8, 'Constitutive vs\ninflammation-gained',
-              fontsize=7, color='gray', fontstyle='italic', va='center')
-
-    ax_a.set_title('A  Decision framework for in vivo CRISPRa design',
-                    fontsize=11, fontweight='bold', loc='left')
-
-    # === Panel B: TFE3 sgRNA table — no score column ===
-    ax_b = fig.add_subplot(gs[0, 1])
-    ax_b.axis('off')
-
-    if tfe3_sgrnas:
-        col_labels = ['#', 'Protospacer (5\' to 3\')', 'Strand', 'GC%', 'Chromatin']
-        table_data = []
-        for i, sg in enumerate(tfe3_sgrnas[:5], 1):
-            gc_pct = f"{float(sg['gc_content'])*100:.0f}%"
-            table_data.append([
-                str(i),
-                sg['protospacer_sequence'],
-                '+' if sg['strand'] == '+' else '\u2212',
-                gc_pct,
-                'Open (all states)',
-            ])
-
-        table = ax_b.table(cellText=table_data, colLabels=col_labels,
-                           cellLoc='center', loc='upper center',
-                           colColours=['#264653'] * 5)
-        table.auto_set_font_size(False)
-        table.set_fontsize(9)
-        table.scale(1, 1.8)
-
-        # Style
-        for j in range(len(col_labels)):
-            table[0, j].set_text_props(color='white', fontweight='bold')
-        for i in range(1, len(table_data) + 1):
-            for j in range(len(col_labels)):
-                table[i, j].set_facecolor('#F4F1DE' if i % 2 == 0 else 'white')
-            # Monospace for protospacer
-            table[i, 1].set_text_props(fontfamily='monospace', fontsize=8)
-
-    ax_b.set_title('B  TFE3 sgRNA candidates: HEAL (TTTR) system\n'
-                    '     Constitutively accessible across all microglial states',
-                    fontsize=11, fontweight='bold', loc='left')
-
-    ax_b.text(0.5, 0.15,
-              'HEAL system: dUn1Cas12f1 + activation domain in single AAV\n'
-              'All candidates in ATAC-seq peaks across all 6 microglial states (3 labs)\n'
-              'Experimental validation required (heuristic pre-selection, not ML-predicted efficacy)',
-              transform=ax_b.transAxes, ha='center', fontsize=8, fontstyle='italic', color='gray',
-              linespacing=1.5)
-
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(OUTPUT, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"Saved: {OUTPUT}")
+    ax=axes[1]; y=range(len(rows)); signals=[]
+    for _,row in rows.iterrows():
+        values=[
+            float(row[f"peak_signal_{state}"])
+            for state in STATES
+            if str(row[f"guide_fully_in_peak_{state}"]).lower()=="true"
+            and pd.notna(row[f"peak_signal_{state}"])
+        ]
+        signals.append(min([v for v in values if v>0],default=0))
+    colors=["#2A9D8F" if n==6 else "#E9C46A" for n in rows.n_primary_states]
+    ax.barh(list(y),signals,color=colors,edgecolor="black",lw=.5)
+    ax.set_yticks(list(y)); ax.set_yticklabels([f"Rank {int(value)}" for value in rows["rank"]],fontsize=7); ax.invert_yaxis(); ax.set_xlabel("Minimum supporting peak signal across positive contexts")
+    for index, (_, row) in enumerate(rows.iterrows()):
+        off = row.get("pam_valid_offtargets_total_le3mm", "")
+        off_label = int(float(off)) if str(off) not in {"", "nan"} else "NA"
+        label = f"{row['protospacer_sequence']}  |  {int(row['n_primary_states'])}/6  |  off≤3: {off_label}"
+        ax.text(.02, index, label, transform=ax.get_yaxis_transform(), ha="left", va="center", fontsize=6.1,
+                color="white" if colors[index] == "#2A9D8F" else "#333", weight="bold")
+    ax.set_xlabel("Minimum supporting peak signal across positive contexts", fontsize=7.2, labelpad=4)
+    ax.set_title("B  Tfe3 Un1Cas12f1 candidate protospacers",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
+    fig.text(.47,.035,"Predictive ranking; PAM-aware Bowtie screening does not replace purpose-built\noff-target tools or experimental safety assays.",fontsize=5.8,ha="left")
+    fig.subplots_adjust(left=.055, right=.985, top=.90, bottom=.22, wspace=.32)
+    save(fig,"fig5")
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__": main()

@@ -1,0 +1,13 @@
+PASS
+atlas_rows=647970
+genes=21599
+classes=5
+contexts=6
+therapeutic_genes=55
+candidate_rows=1262
+candidate_gene_class_groups=268
+replicate_evidence_rows=16406
+qc_run_rows=13
+qc_condition_rows=6
+tss_rows=64797
+blacklist_mm39_rows=3360

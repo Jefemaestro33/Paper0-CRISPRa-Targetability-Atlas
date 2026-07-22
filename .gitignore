@@ -4,20 +4,30 @@
 *.log
 *.out
 *.synctex.gz
+*.fdb_latexmk
+*.fls
+*.run.xml
+*.bcf
 .DS_Store
 __pycache__/
 *.pyc
 
-# Large files (bigwigs tracked via description only)
-analysis_results/bigwigs/*.bw
-analysis_results/tss_matrix_*.gz
-analysis_results/tss_matrix_*.tab
-analysis_results/tss.bed
-analysis_results/idr_peaks/*.narrowPeak
+# Retired pre-revision output tree; canonical derived files now live under
+# supplementary/, analysis_stats/, figures/output/, and ignored workflow/results/.
+analysis_results/
 
 # Keep the canonical matrix tracked so figures and audits can run from a clone.
 # Data symlinks (local paths, not portable)
 data/
+
+# Reproducible workflow downloads and derived intermediates
+workflow/data/
+workflow/resources/
+workflow/results/
+
+# Vector PDFs are the canonical publication figures; raster previews are
+# generated locally by the same scripts and intentionally not duplicated in Git.
+figures/output/*.png
 
 # Private editorial and submission workflow
 private/

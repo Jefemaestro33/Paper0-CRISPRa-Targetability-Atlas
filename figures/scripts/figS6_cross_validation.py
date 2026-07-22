@@ -1,84 +1,20 @@
 #!/usr/bin/env python3
-"""
-Supplementary Figure S6: Cross-dataset comparison Gosselin vs Zhang sham
-"""
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
-from pathlib import Path
-
-OUTPUT = Path(__file__).resolve().parent.parent / 'output' / 'figS6.pdf'
-
-# Actual data
-JACCARD = 0.457
-AGREE = 34
-DISAGREE = 21
-TOTAL = 55
-
-# Discordant genes (20 closed→open, 1 open→closed)
-CLOSED_TO_OPEN = 20
-OPEN_TO_CLOSED = 1  # Megf10
+from common import ROOT,STATE_LABELS,STATES,save
 
 
 def main():
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-    # Panel A: Concordance pie
-    ax_a = axes[0]
-    sizes = [AGREE, DISAGREE]
-    colors = ['#2A9D8F', '#E63946']
-    labels = [f'Concordant\n{AGREE}/{TOTAL} ({100*AGREE/TOTAL:.0f}%)',
-              f'Discordant\n{DISAGREE}/{TOTAL} ({100*DISAGREE/TOTAL:.0f}%)']
-    ax_a.pie(sizes, labels=labels, colors=colors, autopct='', startangle=90,
-             textprops={'fontsize': 10, 'fontweight': 'bold'})
-    ax_a.set_title('A  Gene-level concordance\n    (55 therapeutic genes)', fontsize=11, fontweight='bold')
-
-    # Panel B: Direction of discordance
-    ax_b = axes[1]
-    dirs = [CLOSED_TO_OPEN, OPEN_TO_CLOSED]
-    dir_labels = ['Gosselin CLOSED\n→ Zhang OPEN', 'Gosselin OPEN\n→ Zhang CLOSED']
-    dir_colors = ['#F4A261', '#457B9D']
-    bars = ax_b.bar(dir_labels, dirs, color=dir_colors, edgecolor='black', linewidth=0.8)
-    for bar, val in zip(bars, dirs):
-        ax_b.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
-                  str(val), ha='center', fontweight='bold', fontsize=14)
-    ax_b.set_ylabel('Number of genes', fontsize=10)
-    ax_b.set_title('B  Direction of discordance\n    (sham opens, does not close)', fontsize=11, fontweight='bold')
-    ax_b.spines['top'].set_visible(False)
-    ax_b.spines['right'].set_visible(False)
-
-    # Panel C: Summary text
-    ax_c = axes[2]
-    ax_c.axis('off')
-    text = (
-        f"Cross-dataset summary\n"
-        f"{'='*35}\n\n"
-        f"Jaccard index (1kb bins):  {JACCARD:.3f}\n"
-        f"Gene concordance:          {AGREE}/{TOTAL} ({100*AGREE/TOTAL:.1f}%)\n\n"
-        f"Discordant genes:          {DISAGREE}\n"
-        f"  Closed→Open (sham opens): {CLOSED_TO_OPEN}\n"
-        f"  Open→Closed (Megf10):     {OPEN_TO_CLOSED}\n\n"
-        f"Interpretation:\n"
-        f"Most discordance is Gosselin-closed\n"
-        f"and Zhang-sham-open. This is compatible\n"
-        f"with post-surgical activation, but may\n"
-        f"also reflect protocol, depth, gating,\n"
-        f"or batch differences.\n"
-        f"The sole exception (Megf10) has a\n"
-        f"unique pattern across all states."
-    )
-    ax_c.text(0.05, 0.95, text, transform=ax_c.transAxes, fontsize=9,
-              verticalalignment='top', fontfamily='monospace',
-              bbox=dict(boxstyle='round', facecolor='#F4F1DE', alpha=0.8))
-    ax_c.set_title('C  Interpretation', fontsize=11, fontweight='bold', loc='left')
-
-    plt.tight_layout()
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(OUTPUT, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"Saved: {OUTPUT}")
+    concord=pd.read_csv(ROOT/"workflow/results/sensitivity/peak_caller_concordance.tsv",sep="\t").set_index("condition").reindex(STATES)
+    depth=pd.read_csv(ROOT/"workflow/results/matched_depth/matched_depth_summary.tsv",sep="\t").set_index("condition").reindex(STATES)
+    fig,axes=plt.subplots(1,2,figsize=(13,5)); ax=axes[0]; x=np.arange(6)
+    ax.bar(x-.18,concord.jaccard,.36,label="Jaccard of peak-overlapped promoters",color="#457B9D"); ax.bar(x+.18,concord.binary_concordance,.36,label="Binary promoter concordance",color="#E9C46A"); ax.set_xticks(x); ax.set_xticklabels(STATE_LABELS,fontsize=7); ax.set_ylim(0,1); ax.legend(fontsize=7); ax.set_title("A  Genrich versus MACS3 at matched depth",loc="left",weight="bold")
+    ax=axes[1]; ax.bar(x,depth.sampling_fraction,color="#2A9D8F",edgecolor="black",lw=.3); ax.set_xticks(x); ax.set_xticklabels(STATE_LABELS,fontsize=7); ax.set_ylim(0,1.05); ax.set_ylabel("Deterministic sampling fraction"); ax.set_title("B  Depth equalization",loc="left",weight="bold")
+    for ax in axes: ax.spines[["top","right"]].set_visible(False)
+    fig.tight_layout(); save(fig,"figS6")
 
 
-if __name__ == '__main__':
-    main()
+if __name__=="__main__": main()

@@ -1,0 +1,3 @@
+comparison	same_tss	different_tss	total_genes
+ensembl_canonical_vs_appris_principal	18968	2631	21599
+ensembl_canonical_vs_legacy_most5_basic	17003	4596	21599

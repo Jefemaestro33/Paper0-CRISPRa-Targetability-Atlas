@@ -1,459 +1,289 @@
 \documentclass[11pt]{article}
 
-% Manuscript source
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{hyperref}
-\usepackage{xcolor}
-\usepackage{amsmath}
 \usepackage[numbers,square,sort&compress]{natbib}
 \usepackage{lineno}
 \usepackage{setspace}
 \usepackage{authblk}
+\usepackage{amsmath}
+\usepackage{xcolor}
 \usepackage{caption}
+\emergencystretch=3em
 
 \linenumbers
 \doublespacing
+\input{results_macros.tex}
 
 \begin{document}
 
-% ============================================================
-% TITLE
-% ============================================================
-\title{A genome-wide CRISPRa targetability atlas across murine microglial states integrating PAM availability with chromatin accessibility}
-
+\title{A genome-wide, guide-site-aware CRISPRa targetability atlas across murine microglial ATAC-seq contexts}
 \author[1,2,*]{Ernest Darell Zerme\~no}
 \affil[1]{Universidad Panamericana, Guadalajara, Mexico}
-\affil[2]{Centro Universitario de Ciencias Biol\'ogicas y Agropecuarias (CUCBA), Universidad de Guadalajara, Zapopan, Mexico}
-\affil[*]{Corresponding author: 0244552@up.edu.mx \quad ORCID: 0009-0002-1721-4526}
-
+\affil[2]{Centro Universitario de Ciencias Biol\'ogicas y Agropecuarias, Universidad de Guadalajara, Zapopan, Mexico}
+\affil[*]{Correspondence: 0244552@up.edu.mx; ORCID: 0009-0002-1721-4526}
 \date{}
 \maketitle
 
-% ============================================================
-% ABSTRACT
-% ============================================================
 \begin{abstract}
+\textbf{Background:} Compact CRISPR-mediated transcriptional activation (CRISPRa) systems can ease adeno-associated virus packaging constraints, but their restricted protospacer-adjacent motifs (PAMs) and the chromatin environment of the actual guide site both affect candidate selection. Existing design tools are general purpose; a reproducible resource focused on microglial regulatory contexts has been lacking.
 
-\textbf{Background:} CRISPR-mediated transcriptional activation (CRISPRa) delivered by adeno-associated virus (AAV) is an emerging therapeutic modality for neurological diseases. Single-AAV delivery requires compact Cas proteins---such as Un1Cas12f1 (HEAL), Un1Cas12f1 (SminiCRa), and CjCas9 (MiniCAFE)---whose protospacer-adjacent motif (PAM) sequences are less frequent than SpCas9's NGG. It is widely assumed that this PAM restriction substantially limits the fraction of therapeutically relevant genes that can be targeted by single-AAV CRISPRa systems. However, no systematic evaluation of CRISPRa targetability has been performed that integrates PAM availability with cell-type-specific chromatin accessibility.
+\textbf{Results:} We uniformly reprocessed \NRun{} public murine microglial ATAC-seq runs from three studies and scanned the transcription-oriented $-400$ to $-50$ bp promoter window of 21,599 GENCODE vM33 protein-coding genes. The atlas represents five distinct nuclease/PAM classes across six modelled CRISPRa configurations; HEAL and SminiCRa share the Un1Cas12f1 TTTR targeting class, and the dNme2Cas9 activator is a sequence-level proposed configuration. Unlike a promoter-midpoint proxy, the primary definition requires the complete protospacer plus PAM interval to be contained in a primary ATAC peak. In a frozen 55-gene therapeutic panel, \UnPanelPamN/55 genes (\UnPanelPamPct\%) contained a sequence-filtered TTTR candidate, whereas \UnPanelTargetMinPct--\UnPanelTargetMaxPct\% had a complete Un1Cas12f1 guide site supported across individual dataset contexts. The corresponding genome-wide range was \UnGenomeTargetMinPct--\UnGenomeTargetMaxPct\%. \textit{Tfeb} and \textit{Tfe3} had TTTR candidates but primary peak support in \TfebUnContextsN/6 and \TfeThreeUnContextsN/6 contexts, respectively. Canonical-TSS, APPRIS, legacy-TSS, matched-depth, and Genrich/MACS3 analyses showed explicitly which calls were definition-sensitive. Across-study differences remained descriptive because study, isolation, sequencing, depth, and biology were confounded.
 
-\textbf{Results:} We constructed a genome-wide CRISPRa targetability atlas for murine microglia encompassing 21,599 protein-coding gene promoters, six Cas orthologs, and six microglial functional states from three independent laboratories (homeostatic, na\"ive, acute inflammatory, tolerized, post-surgical sham, and post-ischemic stroke). Within the promoter window and filtering scheme used here, PAM availability alone was high: even the most restrictive PAM (TTTR, Un1Cas12f1) yielded $\geq$1 suitable protospacer in 89.1\% of 55 curated therapeutic genes after strict IUPAC-aware scanning on both strands. Integrating ATAC-seq-derived chromatin accessibility substantially reduced predicted promoter-level targetability across the six Cas orthologs to 32.7--40.0\% in homeostatic microglia, 45.5--58.2\% in inflammatory states, and 60.0--74.5\% in surgical/stroke-context states. Within each state, the spread across Cas orthologs was 7.3--10.9 percentage points, smaller than the 32.7 percentage-point range observed across microglial states for HEAL. The \textit{Tfeb} promoter was classified as accessible only in post-surgical sham microglia under the atlas midpoint criterion, whereas its paralog \textit{Tfe3} was classified as accessible across all six states. Thirteen therapeutic genes showed surgical/stroke-context accessibility patterns that should not be interpreted as injury-driven without validation.
-
-\textbf{Conclusions:} This study provides a predictive in silico resource for promoter-targeted CRISPRa design in murine microglia. The most direct contribution is a transparent, state-aware atlas showing that chromatin accessibility can substantially narrow the set of promoter-level CRISPRa candidates after PAM scanning. The predictions should be interpreted as hypotheses for experimental validation, not as demonstrated CRISPRa activity or therapeutic efficacy.
-
+\textbf{Conclusions:} PAM availability was broader than guide-site support in the promoter window studied. The atlas provides auditable candidate protospacers and robustness annotations for experimental prioritization, not evidence of CRISPRa efficacy, non-activatability, safety, or therapeutic benefit.
 \end{abstract}
 
-\textbf{Keywords:} CRISPRa, microglia, ATAC-seq, chromatin accessibility, AAV, Cas12f, PAM, \mbox{targetability atlas}
+\noindent\textbf{Keywords:} CRISPRa; microglia; ATAC-seq; chromatin accessibility; guide design; Cas12f; PAM; targetability atlas
 
-% ============================================================
-% BACKGROUND
-% ============================================================
 \section{Background}
 
-CRISPR-mediated transcriptional activation (CRISPRa) enables upregulation of endogenous genes without permanent genome modification, making it an attractive modality for in vivo therapeutic gene regulation \citep{bohm2020crispra}. When delivered by adeno-associated virus (AAV), CRISPRa systems must contend with the $\sim$4.7~kb packaging capacity between the inverted terminal repeats (ITRs), which constrains the size of the nuclease-dead Cas protein, the transcriptional activation domain, the promoter, the single-guide RNA (sgRNA) cassette, and regulatory elements.
+CRISPR-mediated transcriptional activation (CRISPRa) increases endogenous gene expression without introducing a targeted double-strand break. Its use in vivo is constrained by delivery: the coding sequence of SpCas9 alone occupies much of the approximately 4.7-kb adeno-associated virus payload, motivating smaller effectors and activation architectures \citep{vora2018miniVPR,bohm2020crispra}. Compact systems based on Un1Cas12f1 and CjCas9 have demonstrated mammalian transcriptional activation, including HEAL, SminiCRa, and MiniCAFE \citep{wan2026heal,wang2024sminicra,zhang2021minicafe}. Compactness does not remove the need for an appropriately positioned PAM and protospacer.
 
-The most widely used Cas protein, SpCas9, exceeds 4.1~kb in coding sequence alone, precluding single-AAV packaging of dSpCas9-based CRISPRa constructs with potent activation domains such as VPR or miniVPR \citep{vora2018miniVPR}. This has driven the development of compact Cas alternatives compatible with single-AAV delivery. Among these, Un1Cas12f1 ($\sim$1.6~kb; HEAL system) \citep{wan2026heal}, Un1Cas12f1 ($\sim$1.6~kb; SminiCRa) \citep{wang2024sminicra}, and CjCas9 ($\sim$2.9~kb; MiniCAFE) \citep{zhang2021minicafe} have demonstrated CRISPRa activity in mammalian cells. HEAL and SminiCRa are both based on Un1Cas12f1 but use different engineered sgRNA scaffolds and activation domains. These compact Cas proteins recognize PAM sequences that are less frequent than SpCas9's NGG: TTTR (R = A or G; i.e., TTTA or TTTG) for Un1Cas12f1-based systems, and NNNVRYM for CjCas9. It is widely assumed---though not systematically quantified---that these PAM restrictions limit the fraction of therapeutically relevant genes that can be targeted.
+Chromatin provides a second selection layer. CRISPRi/a activity depends strongly on guide position and local regulatory context, and established design frameworks already use chromatin data to prioritize guide RNAs \citep{horlbeck2016crispri,sanson2018crispra,crisprverse2022}. Accessibility is nevertheless probabilistic rather than a universal binary requirement: an ATAC-supported site is a more plausible candidate, while absence of an ATAC peak does not prove that a potent activator cannot engage the locus.
 
-A second, largely overlooked constraint is chromatin accessibility. CRISPRa requires that the sgRNA-Cas complex physically access the target promoter, which in turn requires that the DNA be in an open chromatin state at the time of transduction. Chromatin accessibility is not a fixed property of a locus but varies dramatically across cell types and functional states \citep{buenrostro2013atacseq, preissl2018snATAC}. In microglia---the resident macrophages of the central nervous system and an emerging target for gene therapy in neurodegeneration, spinal cord injury (SCI), and neuroinflammation---chromatin landscapes shift substantially between homeostatic, developmental, inflammatory, and disease-associated states \citep{gosselin2017environment, matcovitch2016microglia, butovsky2014microglia, wendeln2018innate, kerenshaul2017dam, zhangx2022innate}.
+Microglia are especially relevant because their regulatory landscape responds to tissue environment and inflammatory history \citep{gosselin2017environment,wendeln2018innate,zhangx2022innate}. CRISPRi/a has also been implemented in human induced-pluripotent-stem-cell-derived microglia, establishing a practical route to functional follow-up \citep{drager2022crispri}. Public murine ATAC-seq datasets span homeostatic, endotoxin-exposure, surgical-control, and stroke settings, but these datasets were generated by different laboratories with different isolation and sequencing strategies. They can support a multi-context resource, not a balanced causal comparison of ``microglial states.''
 
-Prior work has established that chromatin accessibility influences CRISPRa efficacy and should be incorporated into sgRNA design. Horlbeck et al. integrated DNase-seq and MNase-seq data into genome-scale CRISPRi/a library design \citep{horlbeck2016crispri}, subsequent screens have refined CRISPRa library design \citep{sanson2018crispra, konermann2015sam}, and computational tools such as crisprVerse \citep{crisprverse2022} support chromatin-aware guide selection. However, these resources provide general-purpose design algorithms rather than cell-type-specific targetability maps. Despite the growing interest in CRISPRa-based approaches targeting microglia \citep{drager2022crispri}, no resource has applied these principles to systematically evaluate predicted promoter-level targetability across microglial functional states, including disease-relevant contexts such as CNS injury. Here, we extend existing chromatin-aware CRISPRa design methodology to generate a microglia-focused targetability atlas, integrating PAM availability for six Cas orthologs with ATAC-seq-derived chromatin accessibility across six microglial states from three independent laboratories. The goal is not to introduce a new general principle for CRISPRa design, but to provide a transparent, state-aware resource for prioritizing hypotheses before experimental validation.
+Here we rebuild a genome-wide murine microglial atlas around the coordinate that matters experimentally: the complete protospacer--PAM interval. We distinguish five targeting classes across six modelled CRISPRa configurations, define TSS and peak-set provenance, use independent biological replicates where available, label technical-only contexts, and quantify sensitivity to depth, peak caller, TSS choice, and operational definition. The contribution is a transparent resource for prioritizing experiments rather than a new guide-scoring algorithm or a claim of functional activation.
 
-% ============================================================
-% RESULTS
-% ============================================================
 \section{Results}
 
-% ---- Section 1 ----
-\subsection{PAM availability alone is high across therapeutic gene promoters}
+\subsection{The revised atlas makes guide position, TSS choice, and replication explicit}
 
-To evaluate the contribution of PAM restriction to CRISPRa targetability, we scanned promoter regions of all 21,599 protein-coding genes in the mouse genome (GENCODE vM33, GRCm39) for PAM sequences recognized by six Cas orthologs spanning a range of PAM specificities and AAV packaging compatibilities (Table~\ref{tab:cas_orthologs}). For each gene, we defined the CRISPRa-optimal promoter window as $-400$ to $-50$~bp relative to the annotated transcription start site (TSS), corresponding to the region where CRISPRa systems show maximal transcriptional activation \citep{bohm2020crispra}. We scanned both DNA strands for PAM sequences and applied basic quality filters to the resulting protospacers: GC content 30--70\%, absence of homopolymer runs $>$4~nt, and absence of restriction enzyme sites used in standard cloning (BsmBI, BsaI).
+The workflow starts from checksum-verified FASTQs and GENCODE vM33 rather than inherited peak files (Figure~1). It includes 21,599 nuclear protein-coding genes, \NRun{} sequencing runs, six dataset contexts, and a frozen 55-gene panel. Ensembl-canonical transcripts define the primary TSS. APPRIS selected a different TSS for \CanonicalApprisDifferentN{} genes and the previous most-5-prime GENCODE-basic rule differed for \CanonicalLegacyDifferentN{} genes, demonstrating that TSS selection is not a bookkeeping detail.
 
-Across the full genome, PAM availability was high for all Cas orthologs. SpCas9 (NGG) identified $\geq$1 passing protospacer in 99.98\% of gene promoters (21,594/21,599), and the most restrictive PAM---TTTR of Un1Cas12f1 (shared by HEAL and SminiCRa)---covered 93.3\% of promoters (20,160/21,599; Figure~2A). When focused on a curated panel of 55 therapeutic genes, coverage remained high: HEAL/SminiCRa 89.1\% (49/55), SaCas9 96.4\% (53/55), and SpCas9, CjCas9, and Nme2Cas9 100\% (55/55) (Figure~2B). Six therapeutic genes (\textit{Cx3cr1}, \textit{Dnmt3a}, \textit{Hdac2}, \textit{Pparg}, \textit{Tet2}, and \textit{Tmem119}) lacked a passing TTTR protospacer in the CRISPRa-optimal window.
+Five nuclease/PAM classes are evaluated (Table~1). HEAL and SminiCRa both use Un1Cas12f1 with a TTTR PAM, so their sequence and ATAC-based targeting matrices are identical even though their scaffolds and activation architectures differ. They are consequently represented as two configurations but one targeting class. Nme2Cas9 contributes a compact, experimentally established N$_4$CC DNA-targeting rule, but the dNme2Cas9 activator entry is a proposed configuration rather than a validated CRISPRa platform \citep{edraki2019nme2}.
 
-Notably, CjCas9's PAM (NNNVRYM), which at 7~nt is the longest in our panel, achieved 100\% coverage. This result arises because three of the seven PAM positions are fully degenerate (N) and the remaining constrained positions are themselves degenerate (V, R, Y, and M), yielding an expected frequency of approximately 1 per 11~bp per strand and therefore many candidate sites in a 350~bp window.
+For biologically replicated inputs, the primary peak set retains sequence supported by a qualifying pair of independent replicate peaks at 50\% reciprocal overlap. The intersection of each qualifying pair makes complete guide containment conservative. The PBS/PBS, PBS/LPS, and LPS/LPS inputs consist of paired technical runs from a single biological preparation per condition; they are pooled and explicitly carry no biological-reproducibility claim.
 
-For \textit{Tfeb} (transcription factor EB, master regulator of autophagy-lysosomal biogenesis \citep{sardiello2009gene, settembre2011tfeb}), we identified 5 passing TTTR PAM sites for HEAL/SminiCRa, 23 for SpCas9, and 6 for SaCas9 within the CRISPRa-optimal window. Although fewer than SpCas9, these TTTR sites provide multiple candidate positions for downstream sgRNA evaluation.
+\subsection{Sequence-level PAM coverage is broad in the surveyed promoter window}
 
-These results indicate that, within the 350~bp promoter window evaluated here, PAM availability alone provides broad coverage of the curated therapeutic gene panel, including for compact single-AAV-compatible Cas systems.
+Both strands of the $-400$ to $-50$ bp window were scanned with IUPAC-aware PAM matching and class-specific spacer lengths. Candidates passed prespecified GC, homopolymer, and cloning-site filters. Across the genome, \UnGenomePamN{} of 21,599 promoters (\UnGenomePamPct\%) contained at least one passing Un1Cas12f1 TTTR candidate (Figure~2A). Coverage of the frozen panel was \UnPanelPamN/55 (\UnPanelPamPct\%; Figure~2B); the corresponding values were \SaPanelPamPct\%, \SpPanelPamPct\%, \CjPanelPamPct\%, and \NmePanelPamPct\% for SaCas9, SpCas9, CjCas9, and Nme2Cas9. These values quantify sequence availability within the chosen window; they do not predict expression gain.
 
-% ---- Section 2 ----
-\subsection{ATAC-seq filtering reduces predicted targetability}
+Candidate abundance varied substantially among PAM classes (Figure~2D). This was expected from motif degeneracy and spacer filtering, and it is why the main comparison is not simply whether a promoter contains a motif. The relevant atlas question is whether a specific complete candidate interval has reproducible ATAC support.
 
-To evaluate the functional constraint of chromatin state on CRISPRa targetability, we uniformly reprocessed publicly available ATAC-seq datasets from three independent studies covering six microglial functional states: homeostatic adult microglia (ex vivo purified; Gosselin et al., GSE89960 \citep{gosselin2017environment}), na\"ive (PBS control; Zhang X et al., GSE175578 \citep{zhangx2022innate}), acute LPS-stimulated (PBS then LPS; GSE175578), LPS-tolerized (LPS then LPS; GSE175578), post-surgical sham (FACS-sorted microglia from sham-operated mice; Zhang et al., GSE220041 \citep{zhang2024hdac3stroke}), and post-ischemic stroke (transient middle cerebral artery occlusion, tMCAO; GSE220041). All datasets were aligned to GRCm39 with Bowtie2 \citep{langmead2012bowtie2}, PCR duplicates removed with Picard MarkDuplicates, filtered (MAPQ$\geq$30, chrM removed, ENCODE blacklist regions excluded \citep{amemiya2019encode}), and peaks called with Genrich (ATAC-seq mode) \citep{genrich2019}.
+\subsection{Complete guide-site support is narrower than PAM availability}
 
-We then intersected PAM positions from Phase~1 with ATAC-seq peaks from each microglial state. A gene was classified as \emph{predicted targetable} for a given Cas ortholog in a given state if: (1) its promoter region overlapped an ATAC-seq peak under the atlas accessibility criterion, and (2) at least one PAM site with a passing protospacer fell within an accessible region.
+The primary call requires at least one complete protospacer plus PAM interval to be fully contained in the applicable primary peak. For Un1Cas12f1, \UnPanelTargetMinPct--\UnPanelTargetMaxPct\% of the frozen panel met this rule across the six individual contexts, compared with \UnPanelPamPct\% at the sequence-only layer (Figure~3A). Genome-wide Un1Cas12f1 guide-site support ranged from \UnGenomeTargetMinPct\% to \UnGenomeTargetMaxPct\% (Figure~2C).
 
-The integration of chromatin accessibility data substantially reduced predicted targetability relative to PAM-only estimates (Figure~3A). In homeostatic microglia, 32.7\% (18/55; 95\% CI: 20.0--45.5\%) of therapeutic genes were predicted targetable by HEAL, compared to 89.1\% (49/55; 95\% CI: 80.0--96.4\%) based on PAM availability alone---a reduction of 56.4 percentage points. Equivalently, 31 of 49 HEAL PAM-bearing therapeutic promoters were not predicted targetable after chromatin filtering in the homeostatic state. SminiCRa showed identical results, as both systems share the Un1Cas12f1 PAM (TTTR). In inflammatory states (na\"ive, acute LPS, tolerized), HEAL targetability increased to 45.5--49.1\% (95\% CIs: 32.7--61.8\%). The highest values were observed in surgical/stroke-context states from an independent third laboratory: 65.5\% (95\% CI: 52.7--78.2\%) in post-surgical sham and 60.0\% (95\% CI: 47.3--72.7\%) in post-stroke microglia. Because PAM+chromatin targetability is necessarily a subset of PAM-only availability in this framework, these reductions are reported descriptively rather than as a paired hypothesis test (Table~S7).
+Within a context, the range among the five nuclease/PAM classes was \PanelClassSpreadMinPP--\PanelClassSpreadMaxPP{} percentage points in the panel. Across contexts, the Un1Cas12f1 range was \UnPanelAcrossContextRangePP{} percentage points. This does \emph{not} establish that biological state has a larger effect than nuclease choice: the cross-context range also contains laboratory, sorting, sequencing-layout, depth, and population-composition differences. Accordingly, Figures~2 and 3 label the six columns by study and treatment rather than presenting them as exchangeable states.
 
-As a genome-wide random-placement sanity check, we also shuffled ATAC-seq peaks across the genome 1,000 times per state while preserving peak size and chromosome distribution. Under random peak placement, only 1.7--3.1\% of therapeutic gene promoters overlapped peaks, compared to 65.5--81.8\% observed ($z$-scores 33.0--38.5, all $p < 0.001$; Supplementary Figure~S7). This confirms that the observed promoter overlaps are not compatible with uniformly random peak placement, as expected for promoter-enriched ATAC-seq data, but it should not be interpreted as a promoter-matched test of therapeutic-gene-specific enrichment or as validation of CRISPRa activation.
+The guide-by-context heatmap gives the intended use of the resource (Figure~3C). A positive cell means that at least one candidate interval satisfies the primary rule in that context. A negative cell means only that no candidate passed this particular sequence, window, TSS, peak, and containment definition.
 
-Within each microglial state, predicted targetability differed by 7.3--10.9 percentage points across the six Cas orthologs after chromatin filtering (Figure~3C). By comparison, HEAL targetability varied by 32.7 percentage points across microglial states. Thus, in this promoter-focused atlas, chromatin state accounted for a larger change in predicted targetability than Cas-specific PAM choice. This comparison should be interpreted within the evaluated promoter window and accessibility framework rather than as a general statement about all CRISPRa contexts.
+\subsection{TSS, containment, depth, and peak caller expose definition-sensitive loci}
 
-Because the midpoint-based accessibility criterion is intentionally stringent, we also evaluated a relaxed promoter-overlap criterion as a sensitivity analysis (Supplementary Figure~S3). Under the relaxed criterion, the fraction of therapeutic promoters overlapping ATAC-seq peaks increased to 65.5--81.8\% across states, compared with 32.7--65.5\% HEAL PAM+chromatin targetability under the primary criterion. This analysis shows that absolute targetability values depend strongly on how promoter accessibility is operationalized; therefore, the atlas categories should be treated as conservative predictions rather than binary functional outcomes.
+Four operational quantities were kept separate: complete guide containment, any guide/peak overlap, promoter-midpoint coverage, and any promoter/peak overlap (Supplementary Figure~S3). They answer different questions and produced different estimates; promoter overlap was not relabelled as guide targetability.
 
-% ---- Section 3 ----
-\subsection{State-dependent chromatin accessibility patterns among therapeutic genes}
+TSS choice had a locus-specific impact. The Ensembl-canonical and legacy TSSs for \textit{Tfeb} differed by \TfebLegacyOffset{} bp, whereas the corresponding \textit{Tfe3} definitions differed by \TfeThreeLegacyOffset{} bp (Figure~4C). Under the canonical primary analysis, \textit{Tfeb} contained \TfebUnPamN{} passing TTTR candidates and had guide-site support in \TfebUnContextsN/6 contexts; \textit{Tfe3} contained \TfeThreeUnPamN{} and had support in \TfeThreeUnContextsN/6. These are target-selection hypotheses, not evidence that either paralog is functionally superior. The distinction matters because TFEB and related MiT/TFE factors regulate lysosomal programs, but abundance, localization, occupancy, and downstream function cannot be inferred from promoter ATAC alone \citep{sardiello2009gene,settembre2011tfeb,iyer2022lysosomal}.
 
-Analysis of promoter accessibility across the six microglial states revealed four categories of therapeutic genes with distinct implications for CRISPRa design (Figure~4A--B):
+To evaluate sequencing depth and caller dependence without discarding replication structure, biological inputs were downsampled at replicate level to an equal condition-total target, called per replicate, and reconstructed with the same replicate-consensus rule. Technical-only contexts were downsampled after cross-lane pooling and duplicate removal. Genrich and MACS3 were then evaluated in parallel. Across the TSS, depth, and caller variants, the largest change relative to a primary panel call affected \SensitivityMaxChanged{} genes in a class--context cell, corresponding to \SensitivityMaxDeltaPP{} percentage points (Supplementary Figure~S4). The Jaccard index of promoters overlapped by each caller and binary promoter-call concordance are reported separately (Supplementary Figure~S6), rather than justifying Genrich from a local software failure.
 
-\textbf{Constitutively accessible (21/55 genes):} These genes maintained open promoters across all six states and three laboratories, representing the highest-confidence atlas candidates for follow-up. This group includes \textit{Abca1} (cholesterol efflux), \textit{Lamp1} and \textit{Lamp2} (lysosomal membrane), \textit{Mcoln1} (lysosomal calcium channel), \textit{P2ry12} (homeostatic microglial marker), \textit{Tfe3} (autophagy-lysosomal transcription factor), and \textit{Tgfb1} (anti-inflammatory cytokine). These classifications predict promoter accessibility across the surveyed states, but do not establish CRISPRa responsiveness.
+\subsection{Panel patterns and candidate rankings remain descriptive}
 
-\textbf{Inflammation-gained (8/55 genes):} These genes acquired promoter accessibility in inflammatory and/or injury states but had closed promoters in Gosselin homeostatic microglia. This category includes disease-relevant targets such as \textit{Trem2} and \textit{Tyrobp} (phagocytic signaling), \textit{Cx3cr1} (fractalkine receptor), and \textit{Ctsd} and \textit{Ctsb} (lysosomal proteases). These genes represent state-conditional candidates whose predicted targetability depends on the chromatin state of the target microglial population.
+For Un1Cas12f1, \AllSixPatternN{} panel genes had guide-site support in all six contexts, \MultiStudyPatternN{} had support in at least two studies without being positive in every context, \SingleStudyPatternN{} were supported within one study, and \NoContextPatternN{} had no support under the surveyed primary definitions (Figure~4A). These labels replace causal categories such as ``inflammation-gained'' or ``injury-open.'' A within-panel Fisher analysis evaluated whether these support patterns were associated with the functional labels used to curate the panel, with Benjamini--Hochberg adjustment across the full test family (Supplementary Figure~S5). It was treated as descriptive because the panel and its categories were selected a priori.
 
-\textbf{Surgical/stroke-context (13/55 genes):} These genes showed non-constitutive accessibility patterns that included sham and/or stroke states, while remaining closed in Gosselin homeostatic microglia and variably accessible in LPS-stimulated states. This label is descriptive rather than causal: 12 of 13 genes were accessible in sham, 8 of 13 in stroke, and several were sham-only under the midpoint criterion. This category includes \textit{Il1b} and \textit{Tnf} (pro-inflammatory cytokines), \textit{Grn} (progranulin), \textit{Vegfa} (vascular endothelial growth factor), and notably \textit{Tfeb} (see below).
+Candidate Table~S3 reports the selected transcript, TSS, spacer and PAM coordinates, strand, distance to TSS, supporting peak identifier and signal in each context, distance to the peak summit, and the number of positive contexts. A normalized candidate-by-run companion table reports complete and partial support, run-level peak identifier, signal, and summit distance, preserving the distinction between biological replicates and technical lanes. The first five candidates per gene and targeting class are presented as candidate protospacers rather than recommendations. The Un1Cas12f1 subset additionally received exhaustive Bowtie alignment through three mismatches followed by an orientation-aware TTTR check and exon/canonical-promoter annotation (Figure~5). That screen does not model bulges, cleavage, nuclease-specific mismatch energetics, chromatin at off-targets, or experimental genotoxicity.
 
-\textbf{Never accessible (12/55 genes):} These genes had closed promoters in all six states, including \textit{Bdnf}, \textit{Gdnf}, \textit{Il10}, \textit{Pparg}, and \textit{Spi1}. Under the atlas criterion, these targets are not predicted to be promoter-accessible in the surveyed states without additional chromatin remodeling or alternative promoter/TSS selection.
+\subsection{Matched-promoter analysis separates panel composition from random genomic placement}
 
-A central case study concerns \textit{Tfeb}, a frequently proposed target for CRISPRa-mediated autophagy activation in microglia \citep{ma2025trehalose}. The \textit{Tfeb} promoter met the atlas accessibility criterion in one of six microglial states, post-surgical sham microglia from the Zhang et al. dataset \citep{zhang2024hdac3stroke} (Figure~4C). This context-dependent classification suggests that \textit{Tfeb} should be treated as a midpoint-sensitive state-context prediction rather than a constitutively accessible CRISPRa target. Post-stroke microglia did not meet the same promoter accessibility criterion, indicating that \textit{Tfeb} targetability may differ between surgical manipulation and ischemic injury models. Because this classification depends on the stringent midpoint criterion, it should not be read as evidence of absolute promoter inaccessibility; available peak files show promoter-overlapping peaks in several non-sham states whose boundaries fall approximately 45--50~bp short of the atlas midpoint. This interpretation remains predictive and requires direct CRISPRa testing.
+The previous comparison with peaks shuffled uniformly across the genome was replaced because open-chromatin peaks are naturally promoter enriched. For each frozen-panel promoter, non-panel promoters were matched using promoter GC decile, annotated transcript-count bin, and number of passing Un1Cas12f1 candidates. Ten thousand matched panels were sampled with seed 1729 (Supplementary Figure~S7). The analysis compares this curated panel with sequence- and annotation-matched promoters; it is not functional validation and could not additionally match expression or mappability across every context.
 
-To explore possible regulators associated with the surgical/stroke-context category, we performed motif enrichment analysis (HOMER) on the 13 promoters using the 21 constitutively open promoters as background. The T-box transcription factor T-bet (Tbx21) was a biologically plausible hit (p=1$\times$10$^{-4}$, q=0.0035; present in 60\% of surgical/stroke-context promoters, 0\% of constitutive), consistent with IFN-$\gamma$/innate immunity signaling as a candidate contributor to post-surgical chromatin remodeling. PRDM1 (Blimp-1), a regulator of terminal immune cell differentiation, was also enriched (p=1$\times$10$^{-3}$, 50\% vs 7\%; Supplementary Figure~S4). We treat this as exploratory because the analysis was limited to 10 mappable promoters (of 13) and does not establish regulatory causality. Gene Ontology enrichment analysis showed that surgical/stroke-context genes are enriched in MAPK cascade and STAT tyrosine phosphorylation pathways, while inflammation-gained genes are enriched in microglial cell activation and synapse pruning (Supplementary Figure~S5).
-
-ATAC-seq browser tracks at the \textit{Tfeb} and \textit{Tfe3} loci provide locus-level visualization of the atlas classifications (Figure~6). \textit{Tfeb} is called accessible by the midpoint criterion only in post-surgical sham microglia, whereas \textit{Tfe3} shows promoter accessibility across all six states from all three laboratories.
-
-Cross-dataset comparison between Gosselin homeostatic and Zhang sham microglia---both relatively basal but generated by independent laboratories with different protocols---showed 61.8\% gene-level concordance (34/55 therapeutic genes). Of the 21 discordant genes, 20 were closed in Gosselin but open in Zhang sham. This pattern is compatible with greater microglial activation in the sham condition, but it may also reflect protocol, depth, sorting, or batch differences and should not be interpreted as cross-dataset validation (Supplementary Figure~S6).
-
-In contrast, \textit{Tfe3}---a member of the same MiTF/TFE transcription factor family that regulates an overlapping set of CLEAR (Coordinated Lysosomal Expression and Regulation) network genes \citep{settembre2011tfeb}---showed constitutive promoter accessibility across all six states and three independent laboratories. For programs seeking to activate the autophagy-lysosomal pathway via CRISPRa in microglia, \textit{Tfe3} is therefore the more consistently accessible atlas candidate under this promoter-accessibility criterion. This should not be interpreted as evidence that TFE3 is functionally superior to TFEB: TFEB and TFE3 are related lysosomal transcription factors whose activity is also shaped by RagA--Folliculin--mTORC1 and post-translational control, so both candidates require direct CRISPRa validation \citep{settembre2011tfeb,iyer2022lysosomal}.
-
-% ---- Section 4 ----
-\subsection{A practical framework for state-aware CRISPRa vector design}
-
-Based on the atlas, we propose a decision framework for designing CRISPRa vectors targeting microglia (Figure~5A):
-
-\begin{enumerate}
-    \item \textbf{Select Cas with packaging constraints in mind.} In the promoter window evaluated here, PAM availability is high ($\geq$89.1\% for all Cas in the therapeutic panel, and 100\% for SpCas9, CjCas9, and Nme2Cas9), so AAV cargo capacity and activation-domain architecture may be more important practical constraints than PAM coverage alone.
-    \item \textbf{Verify promoter accessibility} in the target cell state using ATAC-seq data (this atlas or equivalent). A gene with abundant PAMs but closed chromatin is not predicted targetable under this atlas criterion.
-    \item \textbf{Design sgRNAs within accessible regions.} Prioritize PAM sites that fall within ATAC-seq peaks, not merely within the promoter window.
-    \item \textbf{Consider state-dependence.} If the target gene is in the ``inflammation-gained'' category, CRISPRa may only be effective in the disease context---which may be desirable (self-limiting activation) or problematic (ineffective in prevention paradigms).
-\end{enumerate}
-
-As a case study, we applied this framework to \textit{Tfe3} (Figure~5B). Using Un1Cas12f1-compatible TTTR PAM sites, we identified candidate protospacers whose gene/Cas combinations are predicted targetable across all six microglial states in the atlas. These sgRNAs are provided as starting points for experimental validation, with state-level atlas flags and heuristic scores reported explicitly as non-validated predictions (Table~S3).
-
-% ============================================================
-% DISCUSSION
-% ============================================================
 \section{Discussion}
 
-This study presents a cell-type- and state-specific CRISPRa targetability atlas for murine microglia, extending established chromatin-aware sgRNA design principles \citep{horlbeck2016crispri,crisprverse2022} into a focused resource for a therapeutically relevant cell type. The central observation is that, within this promoter-targeted computational framework, ATAC-seq-derived chromatin accessibility substantially narrows the set of predicted CRISPRa candidates after PAM scanning.
+This revision changes the scientific object from a promoter-level proxy to a guide-site resource. The old midpoint rule could reject a fully accessible candidate because a peak failed to cover $-225$ bp, or accept promoter accessibility without proving that any complete candidate was supported. Requiring the complete spacer--PAM interval removes that mismatch while preserving midpoint and overlap quantities as transparent sensitivities.
 
-\subsection{PAM availability is high in the studied promoter context}
+The broad sequence coverage of compact PAM classes is useful but unsurprising in a 350-bp, two-strand search. The more informative output is the identity and robustness of individual sites after integrating public microglial ATAC-seq. ATAC support is not a universal binary determinant. Nucleosome breathing, activator potency, chromatin remodelers, and experimental context can permit activity where a peak caller reports no peak. Conversely, an accessible site can fail because of guide folding, effector geometry, delivery, expression, or biological feedback. ``Targetable'' is therefore an operational atlas label, and candidate-site plausibility is the more general interpretation.
 
-The assumption that compact Cas proteins suffer from limited genomic coverage due to restrictive PAMs has influenced vector design decisions in gene therapy. Our data show that, for the promoter windows and curated therapeutic panel evaluated here, PAM availability alone is high. A 350~bp CRISPRa-optimal window provides substantial sequence diversity for at least one suitable PAM site, even for TTTR (expected frequency $\sim$1/128~bp per strand, yielding $\sim$2.7 expected sites per strand and $\sim$5.5 sites when both strands are considered before filtering). The observation that 89.1\% of therapeutic gene promoters contain at least one passing HEAL-compatible protospacer is consistent with this sequence-statistical expectation after applying GC, homopolymer, and restriction-site filters.
+The multi-context design has a deliberate limit. The three studies were not a joint experiment. Gosselin used ex vivo homeostatic microglia and single-end sequencing; Zhang X/Kracht assessed endotoxin exposure with technical sequencing runs; Zhang and colleagues profiled separate sham and stroke animals using a different isolation strategy. Downsampling, a shared peak universe, and a second caller diagnose some technical sensitivity but cannot remove study confounding. The strongest comparisons are those internal to the Zhang X/Kracht and sham--stroke series, while consistency across laboratories is useful as robustness evidence rather than a causal state effect.
 
-This does not imply that PAM restriction is irrelevant in all contexts. For applications requiring precise positioning of the Cas-activator complex (e.g., within a narrow 50~bp window), more restrictive PAMs may indeed limit options. However, for standard CRISPRa applications where the optimal window spans hundreds of base pairs, PAM availability may often be less restrictive than chromatin state.
+The revised \textit{Tfeb}/\textit{Tfe3} example illustrates why the additional safeguards matter. A large alternative-TSS displacement can move the entire 350-bp search window to another locus segment. Primary support for one paralog across more contexts would still not demonstrate greater activation, lysosomal flux, or therapeutic benefit. The atlas instead defines a direct experiment: select candidates with explicit TSS and peak support, activate endogenous \textit{Tfeb} and \textit{Tfe3} side by side in an appropriate microglial system, and measure transcriptional engagement and function.
 
-\subsection{Chromatin state as the gatekeeper of CRISPRa efficacy}
+Several limitations remain. The promoter window is standardized rather than transcript- and cell-state-optimized. Canonical/APPRIS annotations are proxies for the expressed TSS, because matched microglial CAGE data were unavailable across all contexts. Replicate-consensus peaks increase specificity at the cost of sensitivity. Three contexts lack biological replicates. ATAC signal is relative and peak-caller dependent. The 55-gene panel is curated rather than randomly sampled, so its resampling intervals measure stability of that fixed panel rather than population inference. The promoter-matched null lacks expression and mappability matching. Candidate scores are heuristic for Un1Cas12f1, and off-target analysis remains preliminary. Finally, all results are murine and computational; direct CRISPRa and functional validation are required.
 
-Our integration of ATAC-seq data suggests that chromatin accessibility removes 26.5--63.3\% of theoretically PAM-accessible HEAL targets, depending on the microglial state (63.3\% in homeostatic, 44.9--49.0\% in inflammatory states, and 26.5--32.7\% in surgical/stroke-context states, using the 49 PAM-bearing therapeutic promoters as the denominator). This finding aligns with prior observations that CRISPRa efficacy correlates with chromatin accessibility at the target locus \citep{drager2022crispri}, but extends them by providing a systematic, genome-wide quantification across multiple microglial states. This qualitative concordance with external CRISPRa evidence gives independent support to the premise that accessible promoters are more plausible CRISPRa targets, while not constituting locus-level validation of the atlas predictions.
-
-The practical implication is that CRISPRa vector design for microglia should include a chromatin accessibility check before prioritizing sgRNAs. Similar state-aware atlases may be useful in other cell types, but the present data support that conclusion directly only for murine microglial promoter-targeted CRISPRa under the framework used here.
-
-\subsection{\textit{Tfeb} as a midpoint-sensitive case study and the \textit{Tfe3} comparator}
-
-\textit{Tfeb} is among the most frequently proposed targets for CRISPRa-mediated autophagy activation in neurodegenerative contexts \citep{ma2025trehalose, sardiello2009gene}. Our atlas classifies the \textit{Tfeb} promoter as accessible in one of six microglial states---post-surgical sham---and inaccessible under the same midpoint criterion in post-ischemic stroke. This adds a state-dependent hypothesis to its therapeutic tractability, but it should not be read as a binary functional failure call: several non-sham peak files contain promoter-overlapping peaks whose boundaries do not cover the atlas midpoint. We emphasize several caveats: (i) our accessibility classification is based on the midpoint of the promoter window, and partial accessibility at flanking regions may support CRISPRa activity at reduced efficiency; (ii) the sham surgery model involves craniotomy, which differs from spinal cord laminectomy in the degree and type of microglial activation; and (iii) engineered CRISPRa systems with chromatin-remodeling domains might overcome accessibility barriers in closed states.
-
-By contrast, \textit{Tfe3} offers a useful comparator. As a member of the same MiTF/TFE family, TFE3 activates an overlapping set of CLEAR network genes governing autophagy and lysosomal biogenesis \citep{settembre2011tfeb}. Its constitutive promoter accessibility across all six microglial states from three independent laboratories makes it a more consistently accessible atlas candidate for programs seeking to enhance autophagy-lysosomal function in microglia. However, TFEB and TFE3 form a related lysosomal transcription-factor pair whose activity is shaped by RagA--Folliculin stress-response circuitry and post-translational regulation, not promoter accessibility alone \citep{settembre2011tfeb,iyer2022lysosomal}. We therefore present \textit{Tfe3} as a more reliably accessible atlas candidate, not as a functionally superior target. Experimental CRISPRa validation remains required before functional prioritization.
-
-\subsection{Limitations}
-
-Several limitations should be considered when interpreting this atlas. First, the ATAC-seq datasets analyzed derive from three independent studies using different experimental protocols (ex vivo sorted microglia, in vitro LPS stimulation models), sequencing platforms, depths, FRiP values, and sorting strategies; observed accessibility differences may partially reflect technical batch effects or cell-population differences rather than purely biological variation. For this reason, cross-state rank ordering should be interpreted cautiously; the most robust comparisons are within-dataset contrasts such as sham versus stroke in the Zhang L dataset and cross-dataset consistency of loci such as \textit{Tfe3}. This caveat is particularly relevant for canonical homeostatic markers: \textit{Cx3cr1} and \textit{Tmem119} are classified as closed in the Gosselin homeostatic state and open in later states under the midpoint criterion, whereas \textit{P2ry12} is constitutively accessible. This pattern may reflect limited sensitivity or technical differences in the older homeostatic ATAC-seq dataset rather than true absence of homeostatic regulatory activity; \textit{Tmem119} also lacks a passing TTTR protospacer under the strict Cas12f scan. Second, the promoter accessibility classification based on the midpoint of the CRISPRa-optimal window is a simplification that substantially affects absolute targetability numbers: the stringent HEAL PAM+chromatin criterion yields 32.7\% targetability in homeostatic microglia and 32.7--65.5\% across all states, while a relaxed criterion requiring only any overlap between a peak and the promoter window yields 65.5--81.8\% promoter overlap (Supplementary Figure~S3). The relaxed analysis is an accessibility sensitivity analysis, not a guide-level targetability or efficacy estimate. The peak-shuffle analysis is also intentionally simple: peaks were shuffled genome-wide rather than against a promoter-matched or GC-matched null, so it should be interpreted only as a random-placement sanity check, not as evidence that therapeutic promoters are enriched relative to matched promoters or as locus-matched validation of targetability. Third, our sgRNA scoring for Cas12f systems (HEAL, SminiCRa) relies on heuristic filters (GC content, homopolymer avoidance, absence of restriction sites) rather than validated machine-learning models, as no mature equivalent of CRISPick/Rule Set 3 exists for Cas12f \citep{wan2026heal}. Experimental validation of predicted sgRNA efficacy is required. Fourth, the atlas is based on the murine genome (GRCm39) and microglial ATAC-seq data; translation to human microglia will require integration with human ATAC-seq datasets. Fifth, the observation that PAM availability is high for therapeutic promoters is, in retrospect, predictable from sequence statistics: a 350~bp window searched on both strands provides $\sim$5.5 expected TTTR matches before filtering. Our contribution is the systematic quantification of this expectation across all therapeutic targets and its juxtaposition with state-specific chromatin accessibility. Sixth, this study is purely computational and no CRISPRa predictions have been experimentally validated. While the ATAC-seq accessibility classifications are based on well-established public datasets, confirmation that predicted-open loci are indeed activatable by CRISPRa---and that predicted-closed loci are not---remains essential. Seventh, the 55 therapeutic genes were curated from the microglial biology literature and may be biased toward well-studied genes with more characterized (and potentially more accessible) promoters; genome-wide targetability statistics should be considered alongside the focused panel results. Eighth, alternative TSS usage across microglial states could shift the relevant promoter window for individual genes; our analysis uses a single canonical TSS per gene. Ninth, the microglial sorting strategies differ between datasets: Gosselin et al. used CD11b$^+$ CD45$^{\text{low}}$ gating, which selects resident microglia and excludes infiltrating peripheral macrophages, while Zhang L et al. used CD11b$^+$ CD45$^+$ gating, which may include infiltrating myeloid cells---a known confounder in stroke models where the blood-brain barrier is disrupted. Accessibility differences between Gosselin and Zhang L datasets may therefore partially reflect cell population heterogeneity rather than purely state-dependent chromatin remodeling. Finally, chromatin accessibility is a necessary but not sufficient condition for CRISPRa efficacy---factors such as nucleosome positioning, transcription factor competition, and 3D genome organization also influence activation efficiency.
-
-% ============================================================
-% CONCLUSIONS
-% ============================================================
 \section{Conclusions}
 
-We present a genome-wide CRISPRa targetability atlas for murine microglia that integrates PAM availability for six Cas orthologs with chromatin accessibility across six functional states from three independent laboratories, including a CNS injury model. In this promoter-focused computational framework, PAM availability alone was high across therapeutic genes, whereas ATAC-seq-derived chromatin accessibility substantially narrowed predicted targetability. The atlas classifies \textit{Tfe3} as constitutively accessible across surveyed states, \textit{Tfeb} as midpoint-accessible only in post-surgical sham under the primary criterion, and 13 therapeutic genes as associated with surgical/stroke-context accessibility patterns. This resource is intended as a transparent, hypothesis-generating foundation for state-aware CRISPRa design in microglia, with experimental validation required before therapeutic interpretation.
+Within a standardized murine promoter window, PAM-bearing candidates were common, whereas complete guide sites supported by primary microglial ATAC peaks were less frequent and definition dependent. The revised atlas makes those dependencies visible at guide resolution and provides exact candidates, peak provenance, TSS alternatives, quality controls, and caller/depth sensitivities. It should be used to prioritize experiments, not to infer efficacy or rule out loci.
 
-% ============================================================
-% METHODS
-% ============================================================
 \section{Methods}
 
-\subsection{Reference genome and gene annotations}
-All analyses were performed using the GRCm39 (mm39) mouse genome assembly with GENCODE vM33 gene annotations \citep{frankish2021gencode}. Protein-coding gene transcription start sites (TSS) were extracted from the GTF annotation file using transcripts tagged as ``basic'' in GENCODE. For each gene, the most 5' TSS among basic transcripts was selected.
+\subsection{Study design and frozen panel}
 
-\subsection{Promoter window definitions}
-Two promoter windows were defined for each gene: (1) a wide window of TSS~$\pm$~500~bp (1~kb total), and (2) a CRISPRa-optimal window spanning $-400$ to $-50$~bp relative to the TSS. The CRISPRa-optimal window corresponds to the region of maximal CRISPRa efficacy documented in the literature. All coordinates are 0-based, half-open (BED format).
+The analysis was designed as a predictive genomics resource. A pre-existing 55-gene panel covering autophagy/lysosome, inflammation, phagocytosis, lipid metabolism, neuroprotection, microglial identity, and epigenetic regulation was frozen in \texttt{config/therapeutic\_genes\_locked.csv} before the present reanalysis. The panel is a complete curated set of interest, not a random sample of therapeutic genes. Genome-wide results are therefore reported alongside panel summaries.
 
-\subsection{PAM scanning}
-Both strands of each promoter region were scanned for PAM sequences of six Cas orthologs: Un1Cas12f1/HEAL (TTTR, 5' PAM, 20~nt spacer), Un1Cas12f1/SminiCRa (TTTR, 5' PAM, 20~nt spacer), SaCas9 (NNGRRT, 3' PAM, 21~nt spacer), SpCas9 (NGG, 3' PAM, 20~nt spacer), CjCas9/MiniCAFE (NNNVRYM, 3' PAM, 22~nt spacer), and Nme2Cas9 (NNNNCC, 3' PAM, 24~nt spacer). IUPAC ambiguity codes were expanded as regular expressions for matching, and reverse-strand searches used IUPAC-aware reverse complements (for example, TTTR reverse-complements to YAAA before reporting the functional PAM orientation as TTTA or TTTG). For each PAM hit, the corresponding protospacer sequence was extracted and filtered for: GC content 30--70\%, no homopolymer runs $>$4~nt, and absence of BsmBI (CGTCTC) and BsaI (GGTCTC) restriction sites and their reverse complements.
+\subsection{Reference genome, transcript selection, and promoter windows}
 
-\subsection{sgRNA scoring for Cas12f}
-For Cas12f orthologs (HEAL and SminiCRa), no validated machine-learning model for sgRNA efficacy prediction exists. We therefore applied a heuristic scoring system: GC content score (optimal at 40--60\%, penalized linearly to 30\% and 70\%), homopolymer penalty ($\leq$3~nt = 1.0, 4~nt = 0.5, $>$4~nt = 0.0), and poly-T terminator penalty (TTTTT or longer = 0.0). These components were combined as a weighted average: $S = 0.5 \times S_{\text{GC}} + 0.3 \times S_{\text{homopolymer}} + 0.2 \times S_{\text{polyT}}$, where $S_{\text{GC}}$ is 1.0 for GC content 40--60\% and decreases linearly to 0.0 at 30\% or 70\%, $S_{\text{homopolymer}}$ penalizes runs $>$3~nt, and $S_{\text{polyT}}$ is 0.0 if TTTTT or longer is present. Scores are reported as heuristic approximations, not validated efficacy predictions, and experimental validation is required.
+The workflow downloads GRCm39/mm39 from UCSC and GENCODE mouse vM33 annotations \citep{frankish2021gencode}. Nuclear protein-coding transcripts were grouped by gene symbol. The primary transcript was tagged \texttt{Ensembl\_canonical}; genes without that tag used APPRIS principal, then a GENCODE-basic fallback with transcript-support level and length as deterministic tie breakers. Sensitivities independently selected APPRIS principal and the most 5-prime GENCODE-basic transcript. Every selection, fallback, transcript identifier, strand, TSS, tag set, and transcript count is recorded in \texttt{reference/tss\_selection.tsv}.
 
-\subsection{ATAC-seq data sources}
-Three publicly available ATAC-seq datasets from three independent laboratories were used:
+TSSs use zero-based genomic coordinates. The promoter search interval was $-400$ to $-50$ bp in transcriptional orientation: \texttt{[TSS-400,TSS-50)} on the positive strand and the corresponding downstream genomic coordinates on the negative strand.
 
-\begin{itemize}
-    \item \textbf{Homeostatic microglia:} Gosselin et al. \citep{gosselin2017environment}. GEO: GSE89960. Bulk ATAC-seq of ex vivo sorted (CD11b$^+$ CD45$^{\text{low}}$) adult mouse microglia. Two biological replicates (SRR5617659, SRR5617660). Single-end 50~bp reads on Illumina HiSeq 4000.
-    \item \textbf{Na\"ive, acute LPS, and tolerized microglia:} Zhang X, Kracht et al. \citep{zhangx2022innate}. GEO: GSE175578. ATAC-seq of sorted microglia from mice treated with: PBS+PBS (na\"ive, PP), PBS+LPS (acute, PL), or LPS+LPS (tolerized, LL), with 1-month interval between treatments. Two technical runs per condition. Paired-end 2$\times$64~bp reads on Illumina HiSeq 2500.
-    \item \textbf{Post-surgical sham and post-ischemic stroke microglia:} Zhang, Li et al. \citep{zhang2024hdac3stroke}. GEO: GSE220041. ATAC-seq of FACS-sorted microglia (CD11b$^+$ CD45$^+$) from adult mice subjected to sham surgery or transient middle cerebral artery occlusion (tMCAO). Two replicates (sham) and three replicates (stroke), wild-type only (HDAC3-KO samples excluded). Paired-end 2$\times$150~bp reads on Illumina HiSeq X Ten.
-\end{itemize}
+\subsection{Nuclease/PAM classes and candidate scanning}
 
-\subsection{ATAC-seq processing pipeline}
-ATAC-seq data were processed following established guidelines \citep{buenrostro2013atacseq, corces2017omni}. Adapter sequences were trimmed using Trim Galore v0.6.11 \citep{krueger2015trimgalore} with Nextera adapter detection. Reads were aligned to GRCm39 using Bowtie2 v2.5.5 \citep{langmead2012bowtie2} with \texttt{--very-sensitive} mode; paired-end datasets additionally used \texttt{--maxins 1000 --no-mixed --no-discordant}. Aligned reads were sorted and indexed with SAMtools v1.23 \citep{li2009samtools}. PCR duplicates were removed using Picard MarkDuplicates (v3.0+, REMOVE\_DUPLICATES=true); paired-end samples were aligned with read group annotations (--rg-id, --rg SM, --rg LB, --rg PL) to enable proper duplicate detection. Duplication rates were 39.3--40.8\% for the Gosselin single-end dataset, 18.2--22.7\% for Zhang X paired-end samples, and 12.4--15.1\% for Zhang L paired-end samples. Additional filtering removed: reads with MAPQ $<$ 30, mitochondrial reads (chrM), and reads overlapping ENCODE blacklist regions (mm10 blacklist v2 \citep{amemiya2019encode}, lifted to GRCm39 coordinates using the Python \texttt{liftover} package; 18 entries with inverted coordinates after liftover were excluded). Blacklist intersection was performed with BEDTools v2.31 \citep{quinlan2010bedtools}. We note that the standard Tn5 transposase insertion offset correction (+4~bp on the positive strand, $-5$~bp on the negative strand \citep{buenrostro2013atacseq}) was not applied, as the targetability classification relies on peak-level overlap with promoter windows ($\geq$350~bp) rather than base-pair resolution summit analysis; a 4--5~bp shift does not materially affect peak--promoter overlap at this scale.
+Five distinct targeting classes were scanned (Table~1). PAM and spacer rules followed the corresponding experimental literature \citep{friedland2015sa,zhang2021minicafe,edraki2019nme2,wang2024sminicra}. Overlapping PAM matches were detected on both strands using full IUPAC reverse complements. Class-specific spacers were extracted only when the full spacer and PAM fell within the promoter window. Protospacers were retained at 30--70\% GC, with no homopolymer longer than four nucleotides and no BsmBI or BsaI recognition site in either orientation. Candidate counts therefore refer to sequence-filtered protospacers, not raw PAM occurrences. Only Un1Cas12f1 candidates received a simple heuristic score based on GC balance, homopolymer length, and poly-T avoidance; no validated efficacy model was claimed.
 
-Technical replicates within each condition were merged using SAMtools. We note that the Zhang X/Kracht dataset (GSE175578) contains two technical runs per condition, not biological replicates; these were merged to increase sequencing depth but do not provide independent biological replication.
+\subsection{Public ATAC-seq inputs}
 
-\subsubsection*{Quality control metrics}
-ATAC-seq quality was assessed using multiple ENCODE-recommended metrics (Supplementary Figure~S1). Fraction of Reads in Peaks (FRiP) ranged from 0.27 to 0.57 across samples: homeostatic 0.30, na\"ive 0.29, acute LPS 0.27, tolerized 0.27, sham 0.57, stroke 0.45. The Zhang X/Kracht samples (PP, PL, LL) fell below ENCODE's recommended threshold of 0.3, consistent with the older sequencing platform (HiSeq 2500, PE 2$\times$64bp); Zhang L and Gosselin samples met or exceeded the threshold. TSS enrichment scores ranged from 9.19 to 13.11 (all $>$6, ENCODE threshold), consistent with promoter-enriched chromatin accessibility signal. Fragment size distributions for paired-end samples showed the expected nucleosomal banding pattern characteristic of successful ATAC-seq experiments (Supplementary Figure~S1C). Irreproducible Discovery Rate (IDR) analysis on biological replicates showed 64.5\% (Gosselin), 64.7\% (Zhang sham), and 69.4\% (Zhang stroke) of peaks passing IDR $<$ 0.05, indicating good inter-replicate reproducibility. IDR was not computed for Zhang X/Kracht samples as these represent technical, not biological, replicates.
+Thirteen runs were obtained from ENA using URLs and MD5 checksums frozen in \path{config/samples.tsv} (Table~2). The Gosselin dataset comprised two independent single-end homeostatic microglial runs (GSE89960) \citep{gosselin2017environment}. The Zhang X/Kracht dataset comprised paired technical runs for PBS/PBS, PBS/LPS, and LPS/LPS preparations (GSE175578) \citep{zhangx2022innate}. The Zhang dataset comprised two sham and three stroke biological replicates (GSE220041) \citep{zhang2024hdac3stroke}.
 
-\subsubsection*{Peak calling}
-Peaks were called using Genrich v0.6.1 \citep{genrich2019} in ATAC-seq mode (\texttt{-j} flag for ATAC-seq, \texttt{-y} to keep unpaired reads for the single-end Gosselin dataset). Genrich was used in place of MACS2 due to a library compatibility issue (undefined symbol \texttt{\_\_log\_finite}) in the MACS2 Cython extension, which persisted across three Python versions (3.9, 3.10, 3.11) and both conda and pip installations, indicating a system-level \texttt{libm}/\texttt{glibc} incompatibility rather than a package-specific bug. Genrich is specifically designed for ATAC-seq peak calling and is used in established pipelines (nf-core/atacseq). We acknowledge the lack of direct Genrich--MACS2 benchmarking on our data as a limitation and recommend that users verify peaks at individual loci of interest using their preferred peak caller.
+\subsection{ATAC-seq processing and quality control}
 
-\subsection{Targetability classification}
-For each gene $\times$ Cas $\times$ microglial state combination, targetability was determined by two criteria: (1) the midpoint of the CRISPRa-optimal promoter window ($-225$~bp relative to TSS) must overlap an ATAC-seq peak, establishing promoter accessibility; and (2) at least one PAM site with a passing protospacer must fall within an ATAC-seq peak within the promoter window. A gene was classified as \emph{predicted targetable} if both criteria were satisfied, and \emph{not predicted targetable} otherwise. As a sensitivity analysis, we also evaluated a relaxed accessibility criterion where any overlap between an ATAC-seq peak and the CRISPRa-optimal promoter window ($-400$ to $-50$~bp) was sufficient to classify a promoter as accessible, regardless of whether the peak covered the midpoint. Under this relaxed promoter-overlap criterion, 65.5--81.8\% of therapeutic promoters overlapped ATAC-seq peaks across states (Supplementary Figure~S3). We report results using the stringent midpoint criterion throughout the main text, as it is conservative and better reflects the preferred positioning of CRISPRa complexes near the core promoter.
+ATAC-seq processing followed established principles \citep{buenrostro2013atacseq,corces2017omni}. Adapters were removed with Trim Galore 0.6.10 \citep{krueger2015trimgalore}. Reads were aligned with Bowtie2 2.5.4 in \texttt{--very-sensitive} mode; paired-end data additionally used \texttt{--maxins 1000 --no-mixed --no-discordant} \citep{langmead2012bowtie2}. BAMs were sorted with SAMtools 1.21, duplicate fragments removed with Picard 3.3, and alignments filtered to MAPQ $\geq30$, proper pairs for paired-end data, primary/non-supplementary alignments, and non-mitochondrial sequence \citep{li2009samtools,quinlan2010bedtools}. Optical-duplicate inference was disabled because ENA/SRA read identifiers do not retain flowcell coordinates; coordinate-based duplicate removal was unchanged. Paired-end blacklist filtering removed the intact pair when either mate overlapped a blacklist interval. The official ENCODE mm10 v2 blacklist (ENCFF543DDX; SHA-256 \texttt{9638bbeb...bfac7}) was mapped with the UCSC mm10-to-mm39 chain: 3,360 of 3,435 intervals mapped and 75 did not; all source and mapped coordinates are recorded in \path{reference/blacklist_liftover_provenance.tsv} \citep{amemiya2019encode}. Genrich 0.6.1 was run in ATAC mode, which applies its ATAC cut-site adjustment internally; single-end data additionally used \texttt{-y} \citep{genrich2019}. Genrich was selected as the prespecified primary caller because it directly supports ATAC-seq, not because another caller failed locally.
 
-Genes were further classified by their accessibility dynamics across six states: \emph{constitutively open} if accessible in all six states; \emph{inflammation-gained} if closed in Gosselin homeostatic microglia and accessible across the activated/stroke-associated states; \emph{surgical/stroke-context} if a non-constitutive pattern included sham and/or stroke accessibility without implying injury causality; \emph{never accessible} if closed in all six states; and \emph{other pattern} for non-canonical state combinations.
+Per-run QC comprised Bowtie2 overall alignment rate, usable fragment/read count, duplication metrics, replicate peak count, fraction of usable fragments or reads overlapping the run's peaks, fragment-length summaries for paired-end data, and maximum TSS enrichment from Tn5-adjusted insertion sites within $\pm2$ kb. FRiP reference lines are descriptive because library type and peak definition differ among datasets.
 
-\subsection{Off-target prediction}
-For the TFE3 sgRNA case study (Figure~5B), candidate protospacers were screened for potential off-target sites by aligning each 20~nt spacer sequence against the GRCm39 genome using Bowtie (v1.3.1, \texttt{-v 3 -a}) to enumerate all genomic loci with $\leq$3 mismatches. Candidates with off-target alignments in annotated exonic or promoter regions ($\pm$1~kb of any TSS) were excluded. This heuristic filter is reported only as a preliminary screen and does not replace validated off-target prediction tools (e.g., Cas-OFFinder, CRISPOR) or experimental off-target profiling (e.g., GUIDE-seq), which would be required before therapeutic use.
+\subsection{Primary peaks and continuous shared-universe signal}
 
-\subsection{Motif enrichment analysis}
-Motif enrichment for the surgical/stroke-context category was performed using HOMER v4.11 \citep{heinz2010homer} \texttt{findMotifsGenome.pl}. The target set was 13 state-context gene promoters (TSS~$\pm$~500~bp), and the background was the 21 constitutively open gene promoters; genome = mm39; motif length = 8,10,12~bp. Known motif enrichment was assessed using HOMER's curated vertebrate motif database. P-values were computed by hypergeometric test; q-values by Benjamini-Hochberg correction. Of 13 surgical/stroke-context promoters, 10 had mappable sequences (3 excluded due to repetitive or ambiguous regions).
+For Gosselin, sham, and stroke, peaks from distinct biological replicates were paired when reciprocal overlap was at least 0.50. Each qualifying pair contributed its intersected interval; overlapping intersections were merged without bridging unsupported gaps. Every retained base was therefore covered by at least one qualifying pair. For stroke, support in any two of three independent replicates was sufficient. For each technical-only Zhang X/Kracht preparation, filtered lanes were merged and deduplicated again at the pooled-library level so that a fragment duplicated across lanes was retained only once. Each technical pool was then called once, with an explicit absence of biological replication. This second deduplication was not applied across independent biological replicates.
 
-\subsection{Gene Ontology enrichment}
-GO Biological Process enrichment was performed using Enrichr \citep{chen2013enrichr} (web interface, accessed March 2026) with gene lists from each accessibility category as input. The mouse (Mus musculus) GO Biological Process 2023 library was used. Terms with adjusted $p < 0.05$ (Benjamini-Hochberg) were considered significant.
+Condition-level filtered BAMs were also merged to create CPM-normalized 10-bp bigWigs for visualization. A union of the six primary peak sets was merged into a shared peak universe, and read/fragment signal was quantified for every condition. This continuous layer supports inspection of peak-threshold effects but was not substituted for biological replication.
 
-\subsection{Therapeutic gene curation}
-A panel of 55 genes with documented therapeutic relevance in microglial biology was curated from the literature, spanning seven functional categories: autophagy/lysosome (13 genes), inflammation (10), phagocytosis (6), lipid metabolism (7), neuroprotection (6), microglial identity (9), and epigenetic regulation (4). Each gene was assigned a priority level (critical, high, or medium) based on the strength of evidence for therapeutic modulation in microglia. The full list with justifications is provided in Table~S1.
+\subsection{Primary targetability and operational sensitivities}
 
-\subsection{Computational environment and reproducibility}
-Analyses were performed using Python 3.11 with a dedicated conda environment containing the required bioinformatics tools. The public GitHub repository listed in the Availability of data and materials section contains the manuscript source, figure-generation scripts, the canonical matrix-level rebuild script, and supplementary tables used for the reported atlas. Rebuilding the atlas from first principles additionally requires external reference/input files not stored in the repository, including the GRCm39 FASTA, GENCODE-derived promoter BED file, ATAC-seq peak files, and raw or processed sequencing files. Raw data accession numbers are GSE89960 (Gosselin), GSE175578 (Zhang X/Kracht), and GSE220041 (Zhang L).
+For every gene, targeting class, and context, a candidate was primarily supported when its complete half-open genomic interval spanning the protospacer and PAM was contained within a primary peak. A gene-level primary call was positive when at least one candidate was supported. Separately stored sensitivities were: any partial candidate/peak overlap, promoter-midpoint coverage, and any promoter-window/peak overlap. The latter two are promoter-accessibility measures, not guide targetability.
 
-% ============================================================
-% AVAILABILITY OF DATA AND MATERIALS
-% ============================================================
+Guide-level outputs include exact mm39 coordinates, strand, PAM, protospacer, TSS distance, transcript and TSS provenance, peak identifier, peak signal, overlap, and summit distance at both primary-context and individual-run levels. Up to five candidates per gene/class were ranked by the number of primary positive contexts, partial-overlap contexts, minimum available supporting signal, Un1Cas12f1 heuristic score where applicable, GC balance, preferred TSS distance, and coordinate. The ranking is predictive and does not constitute an experimental recommendation.
+
+\subsection{Matched-depth and peak-caller sensitivities}
+
+Filtered condition BAMs were counted as read units for single-end data and read-pair units for paired-end data. The minimum condition total was the common target. For biologically replicated contexts, this target was allocated as evenly as available depth permitted among the independent runs; each run was deterministically subsampled, called separately, and reduced to a two-replicate, 50\%-reciprocal-overlap consensus. Technical-only contexts were subsampled once after cross-lane pooling and duplicate removal. Requested and observed post-sampling totals and all deterministic seeds are reported. Peaks were called independently with Genrich and MACS3 3.0.2 \citep{zhang2008macs}. MACS3 used paired-end mode for paired libraries and a fixed shift/extension model for single-end libraries. The atlas was rebuilt for both matched-depth peak sets. Caller concordance was summarized by the Jaccard index of promoter sets with any caller peak and by binary promoter-window concordance; no peak-interval Jaccard was claimed.
+
+\subsection{Statistical summaries and robustness}
+
+For each class--context cell, 10,000 percentile resamples of the 55-gene vector were generated with seed 1729. These are labelled fixed-panel resampling stability intervals and are not confidence intervals for a population of all therapeutic genes. PAM-bearing but unsupported counts were reported descriptively because primary guide support is nested within sequence availability.
+
+For the matched-promoter null, promoter GC was calculated from mm39 and combined with the number of annotated transcripts and number of passing Un1Cas12f1 candidates. Non-panel genes were matched by GC decile, transcript-count bin, and protospacer-count bin, with nearest-neighbour fallback in standardized feature space when a stratum was sparse. Ten thousand non-replacement panels were drawn where possible. Empirical $p$ values used $(b+1)/(N+1)$. Expression and mappability were unavailable on a uniform gene-by-context basis and were not matching variables.
+
+Functional-category associations used two-sided Fisher exact tests within the frozen 55-gene universe, with Benjamini--Hochberg correction across every pattern--category combination. TSS, matched-depth Genrich, and matched-depth MACS3 calls were compared directly with the canonical primary matrix to report changed genes and proportion differences.
+
+\subsection{Preliminary off-target screen}
+
+Up to five reported Un1Cas12f1 candidates per panel gene were aligned exhaustively to mm39 with Bowtie 1.3.1 using up to three mismatches \citep{langmead2009bowtie}. Alignments were retained only when a correctly oriented TTTR PAM was present next to the aligned protospacer. The intended coordinate was removed, and remaining alignments were annotated for overlap with a GENCODE exon or a $\pm1$-kb canonical-TSS window. The screen does not evaluate bulges, chromatin, cleavage probability, or nuclease-specific safety and should be followed by purpose-built tools and experimental assays.
+
+\subsection{Reproducibility and use of generative AI}
+
+The full workflow is implemented in Snakemake 8.25 \citep{molder2021snakemake}. Software versions are pinned in \path{environment.yml}; accessions, MD5 checksums, random seeds, TSS choices, matched-depth realizations, caller concordance, shared-universe signal, source tables, and figure scripts are version controlled. Core regression tests cover promoter orientation, complete guide containment, IUPAC reverse complementation, and replicate-consensus behavior. The versioned code release and machine-readable output tables are identified in Data availability.
+
+During revision, OpenAI ChatGPT and Codex were used for language editing, literature discovery, code drafting and refactoring, test design, and workflow documentation. The author inspected the primary sources, reviewed the code and outputs, corrected errors, and takes full responsibility for the manuscript and analysis. No generative-AI system is an author.
+
 \section{Availability of data and materials}
 
-The dataset supporting the conclusions of this article is included within the article and its additional files. Public ATAC-seq datasets analyzed in this study are available from the Gene Expression Omnibus (GEO): GSE89960 \citep{gosselin2017environment}, GSE175578 \citep{zhangx2022innate}, and GSE220041 \citep{zhang2024hdac3stroke}. The reference genome (GRCm39) was obtained from UCSC Genome Browser and gene annotations (GENCODE vM33) from the GENCODE database. Analysis scripts, figure-generation code, ranked sgRNA candidate tables, and the complete gene $\times$ Cas $\times$ state matrix are available at \url{https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas}. The rendered Figure~6 browser tracks are included in the repository; the underlying bigWig files are large derived intermediates generated from the public ATAC-seq data and are not tracked in GitHub. They can be regenerated from the public GEO inputs using the documented ATAC-seq processing workflow and placed under \texttt{analysis\_results/bigwigs/} for local browser-track regeneration. An interactive web tool for querying the atlas is under development.
+Raw ATAC-seq data are publicly available under GSE89960, GSE175578, and GSE220041; exact ENA run URLs and MD5 checksums are in \path{config/samples.tsv}. The GRCm39 FASTA is downloaded from UCSC and GENCODE vM33 from GENCODE. Source code, frozen configuration, source tables, and figure code are archived in the versioned release v2.0.0 at \url{https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.0.0}. Raw FASTQs and derived BAMs/bigWigs are not stored in Git but are recreated by \path{workflow/Snakefile}.
 
-% ============================================================
-% LIST OF ABBREVIATIONS
-% ============================================================
-\section*{List of abbreviations}
-AAV: adeno-associated virus;
-ATAC-seq: Assay for Transposase-Accessible Chromatin using sequencing;
-CRISPRa: CRISPR-mediated transcriptional activation;
-CLEAR: Coordinated Lysosomal Expression and Regulation;
-CNS: central nervous system;
-DAM: disease-associated microglia;
-FRiP: Fraction of Reads in Peaks;
-IDR: Irreproducible Discovery Rate;
-ITR: inverted terminal repeat;
-PAM: protospacer-adjacent motif;
-SCI: spinal cord injury;
-sgRNA: single-guide RNA;
-tMCAO: transient middle cerebral artery occlusion;
-TSS: transcription start site
-
-% ============================================================
-% DECLARATIONS
-% ============================================================
 \section*{Declarations}
 
 \subsection*{Ethics approval and consent to participate}
-Not applicable. This study uses only publicly available data and computational analyses.
+No new animal or human participants, specimens, or interventions were used. This secondary computational analysis used public, de-identified sequencing data generated under the approvals reported by the original studies.
 
 \subsection*{Consent for publication}
-Not Applicable.
+Not applicable.
 
 \subsection*{Competing interests}
-The authors declare no competing interests.
+The author declares no competing interests.
 
 \subsection*{Funding}
 This research received no external funding.
 
 \subsection*{Authors' contributions}
-E.D.Z. conceived the study, designed and implemented the computational pipeline, performed all analyses, and wrote the manuscript.
+E.D.Z. conceived the study, curated the target panel, designed and implemented the workflow, performed the analysis, interpreted the results, and wrote and revised the manuscript.
 
 \subsection*{Acknowledgements}
-We thank the original data generators (Gosselin et al., Zhang X et al., Zhang L et al.) for making their ATAC-seq data publicly available.
+The author thanks the investigators who generated and publicly released the ATAC-seq datasets used here.
 
-% ============================================================
-% ADDITIONAL FILES
-% ============================================================
+\section*{Abbreviations}
+ATAC-seq, assay for transposase-accessible chromatin using sequencing; CRISPRa, CRISPR-mediated transcriptional activation; FRiP, fraction of reads in peaks; PAM, protospacer-adjacent motif; TSS, transcription start site.
+
 \section*{Additional files}
 
-\textbf{Additional file 1} (CSV; Additional\_file\_1\_Table\_S1\_therapeutic\_genes.csv): Table S1, curated panel of 55 therapeutic genes with functional categories, therapeutic relevance, and priority levels.
+\begin{description}
+\item[Table S1.] Frozen 55-gene panel, functional metadata, and descriptive guide-site support pattern.
+\item[Table S2.] Complete genome-wide gene $\times$ targeting-class $\times$ context atlas, including sequence counts and every operational accessibility definition.
+\item[Table S3.] Candidate protospacers with exact TSS, interval, peak, context, and preliminary off-target annotations; accompanying run-level peak-evidence and full PAM-valid alignment tables.
+\item[Table S4.] Per-run ATAC-seq quality control and primary-peak provenance.
+\item[Table S5.] Descriptive cross-context Un1Cas12f1 support patterns for the frozen panel.
+\item[Table S6.] Original mm10 and lifted mm39 ENCODE blacklist intervals.
+\item[Table S7.] Fixed-panel stability, PAM-to-guide-site attrition, matched-promoter null, and sensitivity records.
+\end{description}
 
-\textbf{Additional file 2} (ZIP-compressed TSV; Additional\_file\_2\_Table\_S2\_targetability\_full.tsv.zip): Table S2, complete targetability matrix for all 21,599 protein-coding genes $\times$ 6 Cas orthologs $\times$ 6 microglial states, including PAM counts, peak overlap status, and targetability classification.
-
-\textbf{Additional file 3} (CSV; Additional\_file\_3\_Table\_S3\_sgrna\_recommendations.csv): Table S3, ranked sgRNA candidate table with atlas-level state targetability flags and non-validated heuristic scores. These entries are intended as starting points for experimental validation, not validated efficacy rankings.
-
-\textbf{Additional file 4} (CSV; Additional\_file\_4\_Table\_S4\_atac\_qc.csv): Table S4, ATAC-seq quality control metrics for all samples, including alignment rates, usable read counts, FRiP, TSS enrichment scores, peak counts, and IDR summary.
-
-\textbf{Additional file 5} (CSV; Additional\_file\_5\_Table\_S5\_accessibility\_dynamics.csv): Table S5, promoter accessibility classification for all 55 therapeutic genes across six microglial states.
-
-\textbf{Additional file 6} (BED; Additional\_file\_6\_Table\_S6a\_blacklist\_mm10\_original.bed): Table S6a, original ENCODE blacklist regions in mm10 (3,435 entries).
-
-\textbf{Additional file 7} (BED; Additional\_file\_7\_Table\_S6b\_blacklist\_mm39\_lifted.bed): Table S6b, mm39-lifted ENCODE blacklist regions (3,395 entries); 40 entries were lost during liftover (unmapped or inverted coordinates).
-
-\textbf{Additional file 8} (CSV; Additional\_file\_8\_Table\_S7\_statistical\_tests.csv): Table S7, statistical support table including bootstrap confidence intervals, descriptive PAM-to-chromatin loss counts, and peak-shuffle random-placement results.
-
-% ============================================================
-% REFERENCES
-% ============================================================
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 
-% ============================================================
-% TABLES
-% ============================================================
-\begin{table}[ht]
+\clearpage
+\begin{table}[p]
 \centering
-\caption{Cas orthologs evaluated in the CRISPRa targetability atlas.}
-\label{tab:cas_orthologs}
+\caption{Targeting classes and represented modelled CRISPRa configurations. HEAL and SminiCRa share one targeting class; the dNme2Cas9 activator is proposed rather than experimentally validated.}
+\label{tab:classes}
 \small
-\begin{tabular}{llcccl}
+\begin{tabular}{llll}
 \toprule
-\textbf{Cas} & \textbf{PAM} & \textbf{Spacer (nt)} & \textbf{Size (kb)} & \textbf{Single-AAV} & \textbf{System} \\
+Targeting class & PAM & Spacer & Represented configuration(s) \\
 \midrule
-Un1Cas12f1 & TTTR & 20 & $\sim$1.6 & Yes & HEAL \\
-Un1Cas12f1 & TTTR & 20 & $\sim$1.6 & Yes & SminiCRa \\
-CjCas9 & NNNVRYM & 22 & $\sim$2.9 & Yes$^*$ & MiniCAFE \\
-SaCas9 & NNGRRT & 21 & $\sim$3.2 & No$^\dagger$ & --- \\
-Nme2Cas9 & NNNNCC & 24 & $\sim$3.2 & No$^\dagger$ & --- \\
-SpCas9 & NGG & 20 & $\sim$4.1 & No & --- \\
+Un1Cas12f1 & TTTR, 5-prime & 20 nt & HEAL; SminiCRa \\
+SaCas9 & NNGRRT, 3-prime & 21 nt & SaCas9 CRISPRa \\
+SpCas9 & NGG, 3-prime & 20 nt & SpCas9 CRISPRa \\
+CjCas9 & NNNVRYM, 3-prime & 22 nt & MiniCAFE \\
+Nme2Cas9 & NNNNCC, 3-prime & 24 nt & proposed dNme2Cas9 activator \\
 \bottomrule
 \end{tabular}
-\begin{flushleft}
-\footnotesize
-$^*$At packaging limit with modest activation domains.
-$^\dagger$Possible with minimal activation domains (e.g., VP64 alone).
-R = A or G; V = A, C, or G; Y = C or T; M = A or C; N = any.
-HEAL and SminiCRa use the same Cas protein (Un1Cas12f1) with different engineered sgRNA scaffolds and activation domains; both recognize TTTR (TTTA or TTTG) as functional PAM in mammalian cells.
-\end{flushleft}
 \end{table}
 
-% ============================================================
-% FIGURE LEGENDS
-% ============================================================
+\begin{table}[p]
+\centering
+\caption{Public ATAC-seq inputs. ``Context'' is descriptive and does not imply a balanced cross-study state comparison.}
+\label{tab:inputs}
+\small
+\begin{tabular}{lllll}
+\toprule
+Study & Context & Runs & Layout & Replication used \\
+\midrule
+Gosselin 2017 & ex vivo homeostatic & 2 & single-end & biological \\
+Zhang X/Kracht 2022 & PBS/PBS & 2 & paired-end & technical \\
+Zhang X/Kracht 2022 & PBS/LPS & 2 & paired-end & technical \\
+Zhang X/Kracht 2022 & LPS/LPS & 2 & paired-end & technical \\
+Zhang 2024 & sham & 2 & paired-end & biological \\
+Zhang 2024 & stroke & 3 & paired-end & biological \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section*{Figure legends}
 
-\textbf{Figure 1. Overview of the CRISPRa targetability atlas.}
-(A) Schematic of the computational pipeline: promoter definition from GENCODE annotations, PAM scanning across six Cas orthologs, ATAC-seq reprocessing from public datasets, and integration into a state-aware targetability matrix. (B) Summary statistics of the atlas: 21,599 protein-coding genes, 6 Cas orthologs, 6 microglial states, 55 curated therapeutic genes.
+\textbf{Figure 1. Corrected analysis architecture and scope.} Reference/TSS selection and five targeting classes are integrated with uniformly reprocessed public ATAC-seq. The primary call requires the complete protospacer plus PAM inside a primary peak.
 
-\textbf{Figure 2. PAM availability across therapeutic promoters.}
-(A) Percentage of 55 therapeutic genes with $\geq$1 passing PAM site in the CRISPRa-optimal promoter window, by Cas ortholog. All Cas achieve $\geq$89.1\% coverage. Bars with bold outlines indicate single-AAV-compatible systems. (B) Heatmap of PAM counts per therapeutic gene per Cas ortholog. (C) Detail of \textit{Tfeb} and selected genes showing abundant PAM availability.
+\textbf{Figure 2. Sequence coverage and genome-wide guide-site support.} (A) Genome-wide and (B) frozen-panel promoters with at least one passing candidate. (C) Primary genome-wide calls by context and targeting class. (D) Candidate-count distributions.
 
-\textbf{Figure 3. ATAC-seq filtering reduces predicted CRISPRa targetability.}
-(A) Paired barplot comparing PAM-only targetability (89.1\% for HEAL) versus PAM+chromatin targetability (32.7--65.5\%) across microglial states. (B) Heatmap of integrated targetability for selected therapeutic genes across states using HEAL. Green = predicted targetable; beige = not predicted targetable. (C) Line plot showing state-level targetability across Cas orthologs after chromatin filtering.
+\textbf{Figure 3. Sequence availability versus primary guide-site support.} (A) Un1Cas12f1 sequence coverage and complete-site support in the frozen panel. (B) Panel summaries for five targeting classes. (C) Gene-level Un1Cas12f1 matrix. Between-context differences are descriptive.
 
-\textbf{Figure 4. State-dependent chromatin dynamics among therapeutic genes.}
-(A) Classification of 55 therapeutic genes by accessibility pattern across six microglial states: constitutively open (21), inflammation-gained (8), surgical/stroke-context (13), never accessible (12), and other pattern (1; \textit{Megf10}, accessible in homeostatic and stroke only). (B) Gene lists by category. (C) Accessibility of \textit{Tfeb} (midpoint-open only in sham), \textit{Tfe3} (constitutively open in all 6 states), and \textit{Trem2} (inflammation-gained) across all six states. (D) PAM availability for TFEB and TFE3 to illustrate the dissociation between PAM availability and chromatin accessibility.
+\textbf{Figure 4. Descriptive panel patterns and TSS robustness.} (A) Cross-context support patterns. (B) \textit{Tfeb}/\textit{Tfe3} primary calls and promoter-overlap context. (C) TSS offsets. (D) Call stability across TSS, depth, and caller variants.
 
-\textbf{Figure 5. Practical framework for state-aware CRISPRa vector design.}
-(A) Decision tree: select Cas with packaging constraints in mind $\rightarrow$ verify chromatin accessibility $\rightarrow$ design sgRNAs within accessible regions $\rightarrow$ consider state-dependence. (B) Case study: TFE3 sgRNA candidate prioritization with Un1Cas12f1-compatible TTTR PAM sites.
+\textbf{Figure 5. Evidence-aware candidate prioritization.} (A) Experimental-prioritization workflow. (B) Top Un1Cas12f1 \textit{Tfe3} candidates with supporting signal and preliminary PAM-aware off-target counts.
 
-\textbf{Figure 6. ATAC-seq signal at the \textit{Tfeb} and \textit{Tfe3} loci across six microglial states.}
-RPKM-normalized ATAC-seq read pileup signal at the \textit{Tfeb} locus (chr17:48,042,955--48,108,344) and \textit{Tfe3} locus (chrX:7,623,799--7,646,441) across all six microglial states from three independent laboratories. Gray shading indicates the gene body; red shading highlights the CRISPRa-optimal promoter window ($-400$ to $-50$~bp relative to TSS). \textit{Tfeb} is called accessible by the atlas midpoint criterion only in post-surgical sham microglia, whereas \textit{Tfe3} is called accessible across all six states. Signal tracks were generated from merged BAMs using deepTools bamCoverage (10~bp bins, RPKM normalization).
+\textbf{Figure 6. Canonical-TSS-centered ATAC signal and guide evidence at \textit{Tfeb} and \textit{Tfe3}.} CPM-normalized signal within $\pm2.5$ kb, primary peak intervals, promoter windows, and supported candidate positions. All tracks use the corrected canonical TSS and primary peak rules. The six contexts share a y-axis scale within each gene column; the two gene columns are scaled independently.
 
-\subsection*{Supplementary figure legends}
+\textbf{Supplementary Figure S1. Per-run ATAC-seq quality control.} Alignment, FRiP, TSS enrichment, and usable units; technical runs are visually distinguished from biological replicates.
 
-\textbf{Supplementary Figure S1. ATAC-seq quality control metrics.}
-(A) Bowtie2 alignment rates for all samples. All samples exceed 92\% alignment rate. (B) Usable read counts after filtering (MAPQ$\geq$30, chrM removal, blacklist exclusion). (C) Fragment size distributions for paired-end samples showing the expected nucleosomal banding pattern (sub-nucleosomal $<$150~bp, mono-nucleosomal $\sim$200~bp, di-nucleosomal $\sim$400~bp). Gosselin is single-end (fragment size analysis not applicable). (D) Fraction of Reads in Peaks (FRiP). ENCODE recommends $>$0.3; dashed line indicates threshold. Zhang L samples (sham, stroke) and Gosselin exceed or meet threshold; Zhang X samples (PP, PL, LL) fall slightly below. (E) TSS enrichment scores. All samples exceed ENCODE's recommended threshold of 6 (dashed line), confirming genuine chromatin accessibility signal. (F) Irreproducible Discovery Rate (IDR) summary for biological replicates: Gosselin (64.5\%), Zhang sham (64.7\%), Zhang stroke (69.4\%) peaks pass IDR $<$ 0.05. IDR was not computed for Zhang X (technical replicates only).
+\textbf{Supplementary Figure S2. Genome-wide candidate distributions and Un1Cas12f1 primary calls.}
 
-\textbf{Supplementary Figure S2. Genome-wide CRISPRa targetability.}
-(A) Distribution of passing PAM counts per gene across all 21,599 protein-coding genes, by Cas ortholog. Boxplots show the CRISPRa-optimal window ($-400$ to $-50$~bp). (B) Percentage of all 21,599 genes targetable (PAM in ATAC-seq peak) per Cas ortholog per microglial state.
+\textbf{Supplementary Figure S3. Operational-definition sensitivity.} Complete containment, partial guide overlap, promoter-midpoint coverage, and any promoter overlap are shown separately.
 
-\textbf{Supplementary Figure S3. Sensitivity of atlas estimates to accessibility criterion.}
-Comparison of the primary stringent atlas criterion and a relaxed promoter-overlap criterion for 55 therapeutic genes. The stringent criterion requires HEAL PAM+chromatin targetability using the promoter midpoint definition. The relaxed comparison counts any ATAC-seq peak overlap with the CRISPRa promoter window and is therefore an accessibility sensitivity analysis, not a validated guide-efficacy estimate. (A) Paired barplot showing that relaxed promoter-overlap values are higher than stringent targetability values across all six states. (B) Per-gene comparison of midpoint targetability states versus midpoint accessibility states. (C) Summary table and interpretation.
+\textbf{Supplementary Figure S4. TSS, depth, and peak-caller sensitivity of frozen-panel calls.}
 
-\textbf{Supplementary Figure S4. Motif enrichment in surgical/stroke-context promoters.}
-(A) HOMER known motif analysis comparing 13 surgical/stroke-context promoters against 21 constitutively open promoters as background. Bars show $-$log10(p-value); red bars indicate q$<$0.05. Percentages indicate motif presence in target vs background. T-bet (Tbx21) and PRDM1 (Blimp-1) are biologically plausible exploratory hits. (B) Interpretation notes and limitations (n=10 mappable promoters).
+\textbf{Supplementary Figure S5. Functional-category associations within the frozen 55-gene universe.}
 
-\textbf{Supplementary Figure S5. Gene Ontology enrichment by accessibility category.}
-GO Biological Process enrichment (Enrichr) for each of the four accessibility categories. Constitutive genes are enriched in transcriptional regulation; inflammation-gained in microglial activation and synapse pruning; surgical/stroke-context genes in MAPK cascade and STAT signaling; never accessible in negative regulation of cytokine signaling.
+\textbf{Supplementary Figure S6. Matched-depth Genrich/MACS3 concordance and deterministic sampling fractions.}
 
-\textbf{Supplementary Figure S6. Cross-dataset comparison of Gosselin homeostatic vs Zhang sham accessibility.}
-(A) Gene-level concordance: 34/55 (61.8\%) therapeutic genes agree. (B) Direction of discordance: 20/21 discordant genes are CLOSED in Gosselin but OPEN in Zhang sham, a pattern compatible with post-surgical activation and/or technical dataset differences. (C) Summary and interpretation. Jaccard index of peak overlap (1kb bins): 0.457.
+\textbf{Supplementary Figure S7. Promoter-matched null specification and results.}
 
-\textbf{Supplementary Figure S7. Random-placement peak-shuffle check for promoter accessibility.}
-(A) For each microglial state, ATAC-seq peaks were shuffled randomly across the genome 1,000 times (BEDTools shuffle, preserving peak size and chromosome). Barplot compares observed fraction of therapeutic gene promoters overlapping ATAC-seq peaks (colored bars) versus the expected fraction under random peak placement (gray bars, mean $\pm$ SD). (B) Summary statistics: observed accessibility ranges from 65.5\% to 81.8\%, while random expectation is 1.7--3.1\% ($z$-scores 33.0--38.5, all $p < 0.001$). This random-placement check shows that observed promoter overlaps are not compatible with uniformly shuffled peaks, but it is not a promoter-matched enrichment test and does not validate CRISPRa activity.
-
-% Old duplicate S3 legend removed
-
-% ============================================================
-% FIGURES (after legends)
-% ============================================================
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig1.pdf}
-\caption*{Figure 1}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig2.pdf}
-\caption*{Figure 2}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig3.pdf}
-\caption*{Figure 3}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig4.pdf}
-\caption*{Figure 4}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig5.pdf}
-\caption*{Figure 5}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/fig6.pdf}
-\caption*{Figure 6}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS1.pdf}
-\caption*{Supplementary Figure S1}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS2.pdf}
-\caption*{Supplementary Figure S2}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS3.pdf}
-\caption*{Supplementary Figure S3}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS4.pdf}
-\caption*{Supplementary Figure S4}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS5.pdf}
-\caption*{Supplementary Figure S5}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS6.pdf}
-\caption*{Supplementary Figure S6}
-\end{figure}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{../figures/output/figS7.pdf}
-\caption*{Supplementary Figure S7}
-\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig1.pdf}\caption*{Figure 1}\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig2.pdf}\caption*{Figure 2}\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig3.pdf}\caption*{Figure 3}\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig4.pdf}\caption*{Figure 4}\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig5.pdf}\caption*{Figure 5}\end{figure}
+\clearpage
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{../figures/output/fig6.pdf}\caption*{Figure 6}\end{figure}
 
 \end{document}

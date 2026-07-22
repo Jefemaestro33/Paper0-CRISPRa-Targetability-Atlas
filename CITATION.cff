@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this atlas or its code, please cite the archived release and the associated article."
+title: "CRISPRa guide-site targetability atlas in murine microglia"
+type: software
+authors:
+  - given-names: Ernest Darell
+    family-names: Zermeño
+    orcid: "https://orcid.org/0009-0002-1721-4526"
+repository-code: "https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas"
+license: MIT
+version: 2.0.0
+date-released: 2026-07-21
+keywords:
+  - CRISPRa
+  - microglia
+  - ATAC-seq
+  - guide design
+  - chromatin accessibility

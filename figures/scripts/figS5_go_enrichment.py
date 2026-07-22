@@ -1,79 +1,24 @@
 #!/usr/bin/env python3
-"""
-Supplementary Figure S5: GO enrichment by accessibility category
-"""
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
-
-OUTPUT = Path(__file__).resolve().parent.parent / 'output' / 'figS5.pdf'
-
-# GO results from Enrichr (actual data)
-GO_DATA = {
-    'Constitutive\n(21 genes)': [
-        ('Pos. reg. transcription RNA Pol II', 0.0001),
-        ('Embryonic digit morphogenesis', 0.0002),
-        ('Reg. macrophage foam cell diff.', 0.0006),
-        ('Pos. reg. nitrogen compound metab.', 0.0006),
-    ],
-    'Inflammation-\ngained (8)': [
-        ('Microglial cell activation', 0.00001),
-        ('Reg. microglial cell migration', 0.0004),
-        ('Synapse pruning', 0.0004),
-        ('Macrophage activation (immune)', 0.0006),
-    ],
-    'Surgical/stroke\ncontext (13)': [
-        ('Pos. reg. cellular catabolic process', 0.00001),
-        ('Pos. reg. MAPK cascade', 0.00001),
-        ('Pos. reg. STAT tyrosine phosph.', 0.00001),
-        ('Reg. STAT tyrosine phosph.', 0.00001),
-    ],
-    'Never\naccessible (12)': [
-        ('Pos. reg. miRNA transcription', 0.0006),
-        ('Neg. reg. cytokine signaling', 0.0006),
-        ('Neg. reg. heterotypic cell adhesion', 0.0009),
-        ('Pos. reg. miRNA metabolic process', 0.0006),
-    ],
-}
-
-CAT_COLORS = {
-    'Constitutive\n(21 genes)': '#2A9D8F',
-    'Inflammation-\ngained (8)': '#F4A261',
-    'Surgical/stroke\ncontext (13)': '#6A994E',
-    'Never\naccessible (12)': '#D3D3D3',
-}
+import pandas as pd
+from common import ROOT,save
 
 
 def main():
-    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
-    axes = axes.flatten()
-
-    for i, (cat, terms) in enumerate(GO_DATA.items()):
-        ax = axes[i]
-        names = [t[0] for t in terms]
-        logp = [-np.log10(t[1]) for t in terms]
-        color = CAT_COLORS[cat]
-
-        y = range(len(terms))
-        ax.barh(y, logp, color=color, edgecolor='black', linewidth=0.5)
-        ax.set_yticks(y)
-        ax.set_yticklabels(names, fontsize=8)
-        ax.set_xlabel('-log10(p-value)', fontsize=9)
-        ax.set_title(cat, fontsize=11, fontweight='bold')
-        ax.invert_yaxis()
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-
-    plt.suptitle('GO Biological Process enrichment by accessibility category',
-                 fontsize=13, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(OUTPUT, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"Saved: {OUTPUT}")
+    frame=pd.read_csv(ROOT/"analysis_stats/within_panel_functional_associations.tsv",sep="\t")
+    # Exact Fisher p values remain unchanged. A 0.5 continuity correction is
+    # used only to display finite log odds ratios when a contingency cell is 0.
+    frame["plot_odds_ratio"]=(frame.in_pattern_and_category+.5)*(frame.outside_pattern_not_category+.5)/((frame.in_pattern_not_category+.5)*(frame.outside_pattern_in_category+.5))
+    frame=frame.sort_values("bh_adjusted_p").head(20).sort_values("plot_odds_ratio")
+    labels=[f"{p} | {c}" for p,c in zip(frame.guide_site_support_pattern,frame.curated_functional_category)]
+    fig,ax=plt.subplots(figsize=(10,7)); values=np.log2(frame.plot_odds_ratio.clip(lower=.05,upper=20)); colors=np.where(frame.bh_adjusted_p<.05,"#D1495B","#A8DADC")
+    ax.barh(range(len(frame)),values,color=colors,edgecolor="black",lw=.3); ax.set_yticks(range(len(frame))); ax.set_yticklabels(labels,fontsize=7); ax.axvline(0,color="#555",lw=.8); ax.set_xlabel("log2 odds ratio within the fixed 55-gene panel")
+    ax.set_title("Within-panel functional-category associations (Fisher tests; BH across all pattern-category tests)",loc="left",weight="bold"); ax.spines[["top","right"]].set_visible(False)
+    ax.text(0,-.09,"Exact Fisher tests use the observed counts; displayed odds ratios use a 0.5 correction. The analysis is descriptive because panel functions were curated a priori.",transform=ax.transAxes,fontsize=8)
+    fig.tight_layout(); save(fig,"figS5")
 
 
-if __name__ == '__main__':
-    main()
+if __name__=="__main__": main()

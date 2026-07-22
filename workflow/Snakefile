@@ -1,0 +1,618 @@
+"""End-to-end Paper 0 ATAC-seq and guide-site targetability workflow."""
+from pathlib import Path
+import csv
+
+
+ROOT = Path(workflow.basedir).parent.resolve()
+WORK = ROOT / "workflow"
+SAMPLE_MANIFEST = ROOT / "config" / "samples.tsv"
+THERAPEUTIC_PANEL = ROOT / "config" / "therapeutic_genes_locked.csv"
+
+with SAMPLE_MANIFEST.open(newline="") as handle:
+    SAMPLE_ROWS = list(csv.DictReader(handle, delimiter="\t"))
+
+SAMPLES = {row["run_accession"]: row for row in SAMPLE_ROWS}
+RUNS_SE = [run for run, row in SAMPLES.items() if row["layout"] == "SE"]
+RUNS_PE = [run for run, row in SAMPLES.items() if row["layout"] == "PE"]
+RUNS = list(SAMPLES)
+CONDITIONS = ["homeostatic", "PP_control", "PL_acute_LPS", "LL_tolerized", "sham_WT", "stroke_WT"]
+FIGURE_NAMES = ["fig1", "fig2", "fig3", "fig4", "fig5", "fig6", "figS1", "figS2", "figS3", "figS4", "figS5", "figS6", "figS7"]
+CONDITION_RUNS = {
+    condition: [row["run_accession"] for row in SAMPLE_ROWS if row["condition"] == condition]
+    for condition in CONDITIONS
+}
+CONDITION_LAYOUT = {
+    condition: next(row["layout"] for row in SAMPLE_ROWS if row["condition"] == condition)
+    for condition in CONDITIONS
+}
+CONDITION_SAMPLE_ACCESSIONS = {
+    condition: sorted({row["sample_accession"] for row in SAMPLE_ROWS if row["condition"] == condition})
+    for condition in CONDITIONS
+}
+if any(len(CONDITION_SAMPLE_ACCESSIONS[condition]) != 1 for condition in ["PP_control", "PL_acute_LPS", "LL_tolerized"]):
+    raise ValueError("Each technical-only condition must map to exactly one source sample accession")
+
+BIOLOGICAL_SUPPORT = {"homeostatic": 2, "sham_WT": 2, "stroke_WT": 2}
+TECHNICAL_ONLY = ["PP_control", "PL_acute_LPS", "LL_tolerized"]
+TSS_DEFINITIONS = ["ensembl_canonical", "appris_principal", "legacy_most5_basic"]
+PRIMARY_PEAKS = [str(WORK / f"results/peaks/primary/{condition}.narrowPeak") for condition in CONDITIONS]
+MATCHED_GENRICH = [str(WORK / f"results/matched_depth/{condition}.genrich.narrowPeak") for condition in CONDITIONS]
+MATCHED_MACS3 = [str(WORK / f"results/matched_depth/{condition}.macs3.narrowPeak") for condition in CONDITIONS]
+
+
+rule all:
+    input:
+        ROOT / "supplementary/table_S1_therapeutic_genes.csv",
+        ROOT / "supplementary/table_S2_targetability_full.tsv.gz",
+        ROOT / "supplementary/table_S3_candidate_protospacers.csv",
+        ROOT / "supplementary/table_S3_offtarget_alignments.tsv",
+        ROOT / "supplementary/table_S3_replicate_evidence.tsv",
+        ROOT / "supplementary/table_S4_atac_qc.csv",
+        ROOT / "supplementary/table_S5_accessibility_dynamics.csv",
+        ROOT / "supplementary/table_S7_statistical_tests.csv",
+        ROOT / "analysis_stats/within_panel_functional_associations.tsv",
+        ROOT / "analysis_stats/matched_depth_summary.tsv",
+        ROOT / "analysis_stats/peak_caller_concordance.tsv",
+        ROOT / "analysis_stats/shared_peak_signal.tsv",
+        ROOT / "analysis_stats/key_results.md",
+        ROOT / "analysis_stats/release_validation.txt",
+        ROOT / "manuscript/results_macros.tex",
+        expand(str(ROOT / "figures/output/{figure}.pdf"), figure=FIGURE_NAMES),
+        WORK / "results/sensitivity/matched_depth_genrich_atlas.tsv",
+        WORK / "results/sensitivity/matched_depth_macs3_atlas.tsv",
+        WORK / "results/sensitivity/peak_caller_concordance.tsv",
+        WORK / "results/shared_peak_signal.tsv",
+        expand(str(WORK / "results/sensitivity/tss/{definition}_atlas.tsv"), definition=TSS_DEFINITIONS[1:]),
+        expand(str(WORK / "results/bigwig/{condition}.bw"), condition=CONDITIONS),
+
+
+rule download_fasta:
+    output:
+        WORK / "resources/mm39.fa"
+    shell:
+        "curl -L --retry 5 https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/mm39.fa.gz | gzip -dc > {output}"
+
+
+rule download_gtf:
+    output:
+        WORK / "resources/gencode.vM33.annotation.gtf"
+    shell:
+        "curl -L --retry 5 https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.annotation.gtf.gz | gzip -dc > {output}"
+
+
+rule fasta_index:
+    input:
+        rules.download_fasta.output
+    output:
+        WORK / "resources/mm39.fa.fai"
+    shell:
+        "samtools faidx {input}"
+
+
+rule bowtie2_index:
+    input:
+        WORK / "resources/mm39.fa"
+    output:
+        expand(str(WORK / "resources/mm39_bt2.{suffix}.bt2"), suffix=["1", "2", "3", "4", "rev.1", "rev.2"])
+    params:
+        prefix=WORK / "resources/mm39_bt2"
+    threads: 8
+    shell:
+        "bowtie2-build --threads {threads} {input} {params.prefix}"
+
+
+rule bowtie1_index:
+    input:
+        WORK / "resources/mm39.fa"
+    output:
+        expand(str(WORK / "resources/mm39_bt1.{suffix}.ebwt"), suffix=["1", "2", "3", "4", "rev.1", "rev.2"])
+    params:
+        prefix=WORK / "resources/mm39_bt1"
+    threads: 8
+    shell:
+        "bowtie-build --threads {threads} {input} {params.prefix}"
+
+
+rule prepare_reference:
+    input:
+        gtf=WORK / "resources/gencode.vM33.annotation.gtf"
+    output:
+        selection=ROOT / "reference/tss_selection.tsv",
+        summary=ROOT / "reference/tss_definition_summary.tsv",
+        beds=expand(str(ROOT / "reference/promoters_{definition}.bed"), definition=TSS_DEFINITIONS),
+    shell:
+        "python {ROOT}/scripts/prepare_reference.py --gtf {input.gtf} --outdir {ROOT}/reference"
+
+
+rule download_se:
+    output:
+        temp(WORK / "data/raw/{run}.fastq.gz")
+    params:
+        url=lambda wc: SAMPLES[wc.run]["fastq_1"],
+        md5=lambda wc: SAMPLES[wc.run]["md5_1"],
+    wildcard_constraints:
+        run="|".join(RUNS_SE)
+    shell:
+        "curl -L --retry 5 --retry-all-errors --retry-delay 5 -o {output}.part {params.url} && "
+        "echo '{params.md5}  {output}.part' | md5sum -c - && mv {output}.part {output}"
+
+
+rule download_pe:
+    output:
+        r1=temp(WORK / "data/raw/{run}_1.fastq.gz"),
+        r2=temp(WORK / "data/raw/{run}_2.fastq.gz"),
+    params:
+        url1=lambda wc: SAMPLES[wc.run]["fastq_1"],
+        url2=lambda wc: SAMPLES[wc.run]["fastq_2"],
+        md51=lambda wc: SAMPLES[wc.run]["md5_1"],
+        md52=lambda wc: SAMPLES[wc.run]["md5_2"],
+    wildcard_constraints:
+        run="|".join(RUNS_PE)
+    shell:
+        "curl -L --retry 5 --retry-all-errors --retry-delay 5 -o {output.r1}.part {params.url1} && "
+        "echo '{params.md51}  {output.r1}.part' | md5sum -c - && mv {output.r1}.part {output.r1} && "
+        "curl -L --retry 5 --retry-all-errors --retry-delay 5 -o {output.r2}.part {params.url2} && "
+        "echo '{params.md52}  {output.r2}.part' | md5sum -c - && mv {output.r2}.part {output.r2}"
+
+
+rule trim_se:
+    input:
+        WORK / "data/raw/{run}.fastq.gz"
+    output:
+        temp(WORK / "data/trimmed/{run}_trimmed.fq.gz")
+    wildcard_constraints:
+        run="|".join(RUNS_SE)
+    threads: 2
+    shell:
+        "trim_galore --nextera --gzip --cores {threads} -o {WORK}/data/trimmed {input}"
+
+
+rule trim_pe:
+    input:
+        r1=WORK / "data/raw/{run}_1.fastq.gz",
+        r2=WORK / "data/raw/{run}_2.fastq.gz",
+    output:
+        r1=temp(WORK / "data/trimmed/{run}_1_val_1.fq.gz"),
+        r2=temp(WORK / "data/trimmed/{run}_2_val_2.fq.gz"),
+    wildcard_constraints:
+        run="|".join(RUNS_PE)
+    threads: 4
+    shell:
+        "trim_galore --paired --nextera --gzip --cores {threads} -o {WORK}/data/trimmed {input.r1} {input.r2}"
+
+
+rule align_se:
+    input:
+        fastq=WORK / "data/trimmed/{run}_trimmed.fq.gz",
+        index=rules.bowtie2_index.output,
+    output:
+        bam=temp(WORK / "results/bam/aligned/{run}.bam"),
+        bai=temp(WORK / "results/bam/aligned/{run}.bam.bai"),
+        log=WORK / "results/qc/{run}.bowtie2.log",
+    params:
+        prefix=WORK / "resources/mm39_bt2"
+    wildcard_constraints:
+        run="|".join(RUNS_SE)
+    threads: 8
+    shell:
+        "bowtie2 --very-sensitive -p {threads} --rg-id {wildcards.run} --rg SM:{wildcards.run} "
+        "--rg LB:{wildcards.run} --rg PL:ILLUMINA -x {params.prefix} -U {input.fastq} 2> {output.log} | "
+        "samtools sort -@ 4 -o {output.bam} && samtools index {output.bam}"
+
+
+rule align_pe:
+    input:
+        r1=WORK / "data/trimmed/{run}_1_val_1.fq.gz",
+        r2=WORK / "data/trimmed/{run}_2_val_2.fq.gz",
+        index=rules.bowtie2_index.output,
+    output:
+        bam=temp(WORK / "results/bam/aligned/{run}.bam"),
+        bai=temp(WORK / "results/bam/aligned/{run}.bam.bai"),
+        log=WORK / "results/qc/{run}.bowtie2.log",
+    params:
+        prefix=WORK / "resources/mm39_bt2"
+    wildcard_constraints:
+        run="|".join(RUNS_PE)
+    threads: 8
+    shell:
+        "bowtie2 --very-sensitive --maxins 1000 --no-mixed --no-discordant -p {threads} "
+        "--rg-id {wildcards.run} --rg SM:{wildcards.run} --rg LB:{wildcards.run} --rg PL:ILLUMINA "
+        "-x {params.prefix} -1 {input.r1} -2 {input.r2} 2> {output.log} | "
+        "samtools sort -@ 4 -o {output.bam} && samtools index {output.bam}"
+
+
+rule mark_duplicates:
+    input:
+        WORK / "results/bam/aligned/{run}.bam"
+    output:
+        bam=temp(WORK / "results/bam/dedup/{run}.bam"),
+        bai=temp(WORK / "results/bam/dedup/{run}.bam.bai"),
+        metrics=WORK / "results/qc/{run}.duplication_metrics.txt",
+    shell:
+        "picard MarkDuplicates I={input} O={output.bam} M={output.metrics} REMOVE_DUPLICATES=true "
+        "ASSUME_SORTED=true READ_NAME_REGEX=null VALIDATION_STRINGENCY=LENIENT && samtools index {output.bam}"
+
+
+rule filter_bam:
+    input:
+        bam=WORK / "results/bam/dedup/{run}.bam",
+        blacklist=ROOT / "supplementary/table_S6_blacklist_mm39_lifted.bed",
+    output:
+        bam=temp(WORK / "results/bam/filtered/{run}.bam"),
+        bai=temp(WORK / "results/bam/filtered/{run}.bam.bai"),
+    params:
+        layout=lambda wc: SAMPLES[wc.run]["layout"]
+    shell:
+        "bash {WORK}/scripts/filter_bam.sh {input.bam} {output.bam} {input.blacklist} {params.layout}"
+
+
+rule sample_peak:
+    input:
+        WORK / "results/bam/filtered/{run}.bam"
+    output:
+        WORK / "results/peaks/replicate/{run}.narrowPeak"
+    params:
+        genrich_flag=lambda wc: "-y" if SAMPLES[wc.run]["layout"] == "SE" else "",
+        temp=lambda wc: WORK / f"results/peaks/replicate/{wc.run}.name_sorted.bam",
+    shell:
+        "samtools sort -n -o {params.temp} {input} && "
+        "Genrich -t {params.temp} -o {output} -j {params.genrich_flag} && rm -f {params.temp}"
+
+
+rule atac_qc:
+    input:
+        bams=expand(str(WORK / "results/bam/filtered/{run}.bam"), run=RUNS),
+        peaks=expand(str(WORK / "results/peaks/replicate/{run}.narrowPeak"), run=RUNS),
+        dups=expand(str(WORK / "results/qc/{run}.duplication_metrics.txt"), run=RUNS),
+        primary=PRIMARY_PEAKS,
+        selection=rules.prepare_reference.output.selection,
+    output:
+        ROOT / "supplementary/table_S4_atac_qc.csv"
+    shell:
+        "python {WORK}/scripts/atac_qc.py --sample-manifest {SAMPLE_MANIFEST} "
+        "--bam-dir {WORK}/results/bam/filtered --replicate-peak-dir {WORK}/results/peaks/replicate "
+        "--primary-peak-dir {WORK}/results/peaks/primary --bowtie-log-dir {WORK}/results/qc "
+        "--duplication-metrics-dir {WORK}/results/qc "
+        "--tss-selection {input.selection} --output {output}"
+
+
+rule condition_bam_biological:
+    input:
+        lambda wc: [str(WORK / f"results/bam/filtered/{run}.bam") for run in CONDITION_RUNS[wc.condition]]
+    output:
+        bam=WORK / "results/bam/condition/{condition}.bam",
+        bai=WORK / "results/bam/condition/{condition}.bam.bai",
+    wildcard_constraints:
+        condition="|".join(BIOLOGICAL_SUPPORT)
+    threads: 4
+    shell:
+        "samtools merge -@ {threads} -f {output.bam} {input} && samtools index {output.bam}"
+
+
+rule condition_bam_technical:
+    input:
+        lambda wc: [str(WORK / f"results/bam/filtered/{run}.bam") for run in CONDITION_RUNS[wc.condition]]
+    output:
+        bam=WORK / "results/bam/condition/{condition}.bam",
+        bai=WORK / "results/bam/condition/{condition}.bam.bai",
+        metrics=WORK / "results/qc/{condition}.technical_pool_duplication_metrics.txt",
+    params:
+        merged=lambda wc: WORK / f"results/bam/condition/{wc.condition}.pre_pool_dedup.bam",
+        regrouped=lambda wc: WORK / f"results/bam/condition/{wc.condition}.regrouped.bam",
+        sample=lambda wc: CONDITION_SAMPLE_ACCESSIONS[wc.condition][0],
+    wildcard_constraints:
+        condition="|".join(TECHNICAL_ONLY)
+    threads: 4
+    shell:
+        "samtools merge -@ {threads} -f {params.merged} {input} && "
+        "samtools addreplacerg -r ID:{wildcards.condition}_technical_pool "
+        "-r SM:{params.sample} -r LB:{params.sample} -r PL:ILLUMINA -m overwrite_all "
+        "-o {params.regrouped} {params.merged} && "
+        "picard MarkDuplicates I={params.regrouped} O={output.bam} M={output.metrics} "
+        "REMOVE_DUPLICATES=true ASSUME_SORTED=true READ_NAME_REGEX=null VALIDATION_STRINGENCY=LENIENT && "
+        "samtools index {output.bam} && rm -f {params.merged} {params.regrouped}"
+
+
+rule pooled_peak:
+    input:
+        WORK / "results/bam/condition/{condition}.bam"
+    output:
+        WORK / "results/peaks/pooled/{condition}.narrowPeak"
+    params:
+        genrich_flag=lambda wc: "-y" if CONDITION_LAYOUT[wc.condition] == "SE" else "",
+        temp=lambda wc: WORK / f"results/peaks/pooled/{wc.condition}.name_sorted.bam",
+    shell:
+        "samtools sort -n -o {params.temp} {input} && "
+        "Genrich -t {params.temp} -o {output} -j {params.genrich_flag} && rm -f {params.temp}"
+
+
+rule primary_consensus_peak:
+    input:
+        lambda wc: [str(WORK / f"results/peaks/replicate/{run}.narrowPeak") for run in CONDITION_RUNS[wc.condition]]
+    output:
+        WORK / "results/peaks/primary/{condition}.narrowPeak"
+    params:
+        support=lambda wc: BIOLOGICAL_SUPPORT[wc.condition]
+    wildcard_constraints:
+        condition="|".join(BIOLOGICAL_SUPPORT)
+    shell:
+        "python {WORK}/scripts/consensus_peaks.py --inputs {input} --output {output} "
+        "--min-replicates {params.support} --reciprocal-overlap 0.50"
+
+
+rule primary_technical_peak:
+    input:
+        WORK / "results/peaks/pooled/{condition}.narrowPeak"
+    output:
+        WORK / "results/peaks/primary/{condition}.narrowPeak"
+    wildcard_constraints:
+        condition="|".join(TECHNICAL_ONLY)
+    shell:
+        "cp {input} {output}"
+
+
+rule condition_bigwig:
+    input:
+        WORK / "results/bam/condition/{condition}.bam"
+    output:
+        WORK / "results/bigwig/{condition}.bw"
+    threads: 4
+    shell:
+        "bamCoverage -b {input} -o {output} --normalizeUsing CPM --binSize 10 -p {threads}"
+
+
+rule condition_manifest:
+    input:
+        expand(str(WORK / "results/bam/condition/{condition}.bam"), condition=CONDITIONS)
+    output:
+        WORK / "results/condition_bams.tsv"
+    shell:
+        "python {WORK}/scripts/write_condition_manifest.py --sample-manifest {SAMPLE_MANIFEST} "
+        "--bam-dir {WORK}/results/bam/condition --output {output}"
+
+
+rule matched_depth:
+    input:
+        manifest=rules.condition_manifest.output,
+        runs=expand(str(WORK / "results/bam/filtered/{run}.bam"), run=RUNS),
+    output:
+        summary=WORK / "results/matched_depth/matched_depth_summary.tsv",
+        genrich=MATCHED_GENRICH,
+        macs3=MATCHED_MACS3,
+    shell:
+        "python {WORK}/scripts/matched_depth_analysis.py --condition-manifest {input.manifest} "
+        "--sample-manifest {SAMPLE_MANIFEST} --run-bam-dir {WORK}/results/bam/filtered "
+        "--consensus-script {WORK}/scripts/consensus_peaks.py "
+        "--outdir {WORK}/results/matched_depth --seed 1729"
+
+
+rule shared_peak_signal:
+    input:
+        peaks=PRIMARY_PEAKS,
+        manifest=rules.condition_manifest.output,
+    output:
+        WORK / "results/shared_peak_signal.tsv"
+    shell:
+        "python {WORK}/scripts/quantify_shared_universe.py --primary-peaks {input.peaks} "
+        "--bam-manifest {input.manifest} --output {output}"
+
+
+rule atlas_primary:
+    input:
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        promoters=ROOT / "reference/promoters_ensembl_canonical.bed",
+        peaks=PRIMARY_PEAKS,
+    output:
+        s2=ROOT / "supplementary/table_S2_targetability_full.tsv.gz",
+        s3=WORK / "results/atlas/table_S3_candidate_protospacers_unannotated.csv",
+    shell:
+        "python {ROOT}/scripts/rebuild_atlas_strict_iupac.py --fasta {input.fasta} --promoters {input.promoters} "
+        "--homeostatic-peaks {input.peaks[0]} --PP-control-peaks {input.peaks[1]} "
+        "--PL-acute-LPS-peaks {input.peaks[2]} --LL-tolerized-peaks {input.peaks[3]} "
+        "--sham-WT-peaks {input.peaks[4]} --stroke-WT-peaks {input.peaks[5]} "
+        "--therapeutic {THERAPEUTIC_PANEL} --table-s2-out {output.s2} --table-s3-out {output.s3}"
+
+
+rule annotate_offtargets:
+    input:
+        candidates=rules.atlas_primary.output.s3,
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        bowtie_index=rules.bowtie1_index.output,
+        gtf=rules.download_gtf.output,
+        selection=rules.prepare_reference.output.selection,
+    output:
+        annotated=ROOT / "supplementary/table_S3_candidate_protospacers.csv",
+        alignments=ROOT / "supplementary/table_S3_offtarget_alignments.tsv",
+    params:
+        prefix=WORK / "resources/mm39_bt1"
+    shell:
+        "python {WORK}/scripts/annotate_offtargets.py --candidates {input.candidates} "
+        "--fasta {input.fasta} --bowtie-index {params.prefix} --gtf {input.gtf} "
+        "--tss-selection {input.selection} --annotated-out {output.annotated} "
+        "--alignments-out {output.alignments}"
+
+
+rule candidate_replicate_evidence:
+    input:
+        candidates=rules.annotate_offtargets.output.annotated,
+        peaks=expand(str(WORK / "results/peaks/replicate/{run}.narrowPeak"), run=RUNS),
+    output:
+        ROOT / "supplementary/table_S3_replicate_evidence.tsv"
+    shell:
+        "python {WORK}/scripts/candidate_replicate_evidence.py --candidates {input.candidates} "
+        "--sample-manifest {SAMPLE_MANIFEST} --replicate-peak-dir {WORK}/results/peaks/replicate "
+        "--output {output}"
+
+
+rule atlas_tss_sensitivity:
+    input:
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        promoters=lambda wc: ROOT / f"reference/promoters_{wc.definition}.bed",
+        peaks=PRIMARY_PEAKS,
+    output:
+        s2=WORK / "results/sensitivity/tss/{definition}_atlas.tsv",
+        s3=WORK / "results/sensitivity/tss/{definition}_candidates.csv",
+    wildcard_constraints:
+        definition="appris_principal|legacy_most5_basic"
+    shell:
+        "python {ROOT}/scripts/rebuild_atlas_strict_iupac.py --fasta {input.fasta} --promoters {input.promoters} "
+        "--homeostatic-peaks {input.peaks[0]} --PP-control-peaks {input.peaks[1]} "
+        "--PL-acute-LPS-peaks {input.peaks[2]} --LL-tolerized-peaks {input.peaks[3]} "
+        "--sham-WT-peaks {input.peaks[4]} --stroke-WT-peaks {input.peaks[5]} "
+        "--therapeutic {THERAPEUTIC_PANEL} --table-s2-out {output.s2} --table-s3-out {output.s3}"
+
+
+rule atlas_matched_genrich:
+    input:
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        promoters=ROOT / "reference/promoters_ensembl_canonical.bed",
+        peaks=MATCHED_GENRICH,
+    output:
+        s2=WORK / "results/sensitivity/matched_depth_genrich_atlas.tsv",
+        s3=WORK / "results/sensitivity/matched_depth_genrich_candidates.csv",
+    shell:
+        "python {ROOT}/scripts/rebuild_atlas_strict_iupac.py --fasta {input.fasta} --promoters {input.promoters} "
+        "--homeostatic-peaks {input.peaks[0]} --PP-control-peaks {input.peaks[1]} "
+        "--PL-acute-LPS-peaks {input.peaks[2]} --LL-tolerized-peaks {input.peaks[3]} "
+        "--sham-WT-peaks {input.peaks[4]} --stroke-WT-peaks {input.peaks[5]} "
+        "--therapeutic {THERAPEUTIC_PANEL} --table-s2-out {output.s2} --table-s3-out {output.s3}"
+
+
+rule atlas_matched_macs3:
+    input:
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        promoters=ROOT / "reference/promoters_ensembl_canonical.bed",
+        peaks=MATCHED_MACS3,
+    output:
+        s2=WORK / "results/sensitivity/matched_depth_macs3_atlas.tsv",
+        s3=WORK / "results/sensitivity/matched_depth_macs3_candidates.csv",
+    shell:
+        "python {ROOT}/scripts/rebuild_atlas_strict_iupac.py --fasta {input.fasta} --promoters {input.promoters} "
+        "--homeostatic-peaks {input.peaks[0]} --PP-control-peaks {input.peaks[1]} "
+        "--PL-acute-LPS-peaks {input.peaks[2]} --LL-tolerized-peaks {input.peaks[3]} "
+        "--sham-WT-peaks {input.peaks[4]} --stroke-WT-peaks {input.peaks[5]} "
+        "--therapeutic {THERAPEUTIC_PANEL} --table-s2-out {output.s2} --table-s3-out {output.s3}"
+
+
+rule peak_caller_concordance:
+    input:
+        promoters=ROOT / "reference/promoters_ensembl_canonical.bed",
+        matched=rules.matched_depth.output,
+    output:
+        WORK / "results/sensitivity/peak_caller_concordance.tsv"
+    params:
+        conditions=" ".join(CONDITIONS)
+    shell:
+        "python {WORK}/scripts/peak_caller_concordance.py --promoters {input.promoters} "
+        "--matched-depth-dir {WORK}/results/matched_depth --conditions {params.conditions} --output {output}"
+
+
+rule sync_sensitivity_provenance:
+    input:
+        depth=rules.matched_depth.output.summary,
+        caller=rules.peak_caller_concordance.output,
+        signal=rules.shared_peak_signal.output,
+    output:
+        depth=ROOT / "analysis_stats/matched_depth_summary.tsv",
+        caller=ROOT / "analysis_stats/peak_caller_concordance.tsv",
+        signal=ROOT / "analysis_stats/shared_peak_signal.tsv",
+    shell:
+        "cp {input.depth} {output.depth} && "
+        "cp {input.caller} {output.caller} && "
+        "cp {input.signal} {output.signal}"
+
+
+rule corrected_statistics:
+    input:
+        atlas=rules.atlas_primary.output.s2,
+        fasta=rules.download_fasta.output,
+        fai=rules.fasta_index.output,
+        promoters=rules.prepare_reference.output.beds,
+        selection=rules.prepare_reference.output.selection,
+        matched_genrich=rules.atlas_matched_genrich.output.s2,
+        matched_macs3=rules.atlas_matched_macs3.output.s2,
+        tss=expand(str(WORK / "results/sensitivity/tss/{definition}_atlas.tsv"), definition=TSS_DEFINITIONS[1:]),
+        genes=THERAPEUTIC_PANEL,
+    output:
+        bootstrap=ROOT / "analysis_stats/bootstrap_cis.tsv",
+        loss=ROOT / "analysis_stats/pam_chromatin_loss.tsv",
+        matched_null=ROOT / "analysis_stats/matched_promoter_null.tsv",
+        sensitivity=ROOT / "analysis_stats/sensitivity_summary.tsv",
+        stability=ROOT / "analysis_stats/therapeutic_gene_stability.tsv",
+    shell:
+        "python {ROOT}/scripts/analysis_statistics.py --atlas {input.atlas} --genes {input.genes} "
+        "--promoters {ROOT}/reference/promoters_ensembl_canonical.bed "
+        "--tss-selection {input.selection} --fasta {input.fasta} --outdir {ROOT}/analysis_stats "
+        "--iterations 10000 --seed 1729"
+
+
+rule sync_compact_outputs:
+    input:
+        atlas=rules.atlas_primary.output.s2,
+        stats=rules.corrected_statistics.output,
+        genes=THERAPEUTIC_PANEL,
+    output:
+        s1=ROOT / "supplementary/table_S1_therapeutic_genes.csv",
+        s5=ROOT / "supplementary/table_S5_accessibility_dynamics.csv",
+        s7=ROOT / "supplementary/table_S7_statistical_tests.csv",
+    shell:
+        "python {ROOT}/scripts/sync_analysis_outputs.py"
+
+
+rule within_panel_functional_associations:
+    input:
+        rules.sync_compact_outputs.output.s5
+    output:
+        ROOT / "analysis_stats/within_panel_functional_associations.tsv"
+    shell:
+        "python {ROOT}/scripts/within_panel_functional_associations.py"
+
+
+rule summarize_results:
+    input:
+        atlas=rules.atlas_primary.output.s2,
+        compact=rules.sync_compact_outputs.output,
+        qc=rules.atac_qc.output,
+        stats=rules.corrected_statistics.output,
+    output:
+        audit=ROOT / "analysis_stats/key_results.md",
+        macros=ROOT / "manuscript/results_macros.tex",
+    shell:
+        "python {ROOT}/scripts/summarize_results.py"
+
+
+rule validate_release:
+    input:
+        atlas=rules.atlas_primary.output.s2,
+        candidates=rules.annotate_offtargets.output.annotated,
+        replicate_evidence=rules.candidate_replicate_evidence.output,
+        qc=rules.atac_qc.output,
+        compact=rules.sync_compact_outputs.output,
+        selection=rules.prepare_reference.output.selection,
+        blacklist=ROOT / "supplementary/table_S6_blacklist_mm39_lifted.bed",
+    output:
+        ROOT / "analysis_stats/release_validation.txt"
+    shell:
+        "python {ROOT}/scripts/validate_release.py --atlas {input.atlas} "
+        "--candidates {input.candidates} --replicate-evidence {input.replicate_evidence} --qc {input.qc} "
+        "--tss-selection {input.selection} --blacklist {input.blacklist} "
+        "--output {output}"
+
+
+rule make_figures:
+    input:
+        summary=rules.summarize_results.output,
+        candidates=rules.annotate_offtargets.output,
+        associations=rules.within_panel_functional_associations.output,
+        bigwigs=expand(str(WORK / "results/bigwig/{condition}.bw"), condition=CONDITIONS),
+        peaks=PRIMARY_PEAKS,
+        caller=rules.peak_caller_concordance.output,
+    output:
+        expand(str(ROOT / "figures/output/{figure}.pdf"), figure=FIGURE_NAMES)
+    shell:
+        "cd {ROOT} && bash scripts/build_figures.sh"

@@ -1,157 +1,157 @@
-# Paper 0: CRISPRa Targetability Atlas in Murine Microglia
+# CRISPRa guide-site targetability atlas in murine microglia
 
-This repository contains the manuscript, analysis scripts, figures, and
-supplementary tables for a genome-wide CRISPRa targetability atlas across murine
-microglial states.
+This repository contains the manuscript and the end-to-end computational
+workflow for a genome-wide, microglia-focused CRISPRa guide-site atlas.
+The resource scans a fixed promoter window, identifies candidate
+protospacer--PAM intervals, and asks whether each **complete interval** is
+contained in an ATAC-seq peak. It is a prioritization resource: an atlas call
+does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
 
-## Manuscript
+## What the revision changes
 
-**Title:** A genome-wide CRISPRa targetability atlas across murine microglial
-states integrating PAM availability with chromatin accessibility
+The primary analysis no longer uses coverage of an arbitrary promoter midpoint.
+It now requires the full protospacer plus PAM to be contained in the relevant
+peak. Promoter-midpoint coverage, any promoter/peak overlap, and any partial
+guide/peak overlap are retained only as sensitivity analyses.
 
-**Author:** Ernest Darell Zermeno
+Other prespecified safeguards include:
 
-The study is a predictive in silico genomics resource. It integrates promoter
-PAM availability for six Cas orthologs with ATAC-seq-derived chromatin
-accessibility across six murine microglial states. The atlas is intended to
-prioritize experimentally testable CRISPRa hypotheses, not to establish
-validated CRISPRa activity or therapeutic efficacy.
+- Ensembl-canonical TSSs as the primary definition, with APPRIS-principal and
+  the legacy most-5-prime GENCODE-basic choice as sensitivities;
+- biological-replicate consensus peaks for Gosselin, sham, and stroke data;
+- explicit treatment of the Zhang X/Kracht runs as technical runs, without a
+  biological reproducibility claim, including pooled-library deduplication
+  across technical lanes;
+- deterministic matched-depth reanalysis with Genrich and MACS3;
+- a shared peak universe with continuous signal quantification;
+- a promoter-matched null and fixed-panel bootstrap stability intervals;
+- PAM-aware, exhaustive Bowtie screening through three mismatches for the
+  Un1Cas12f1 candidate subset, labelled as a preliminary computational screen;
+- exact source accession, checksum, software, random-seed, and TSS provenance.
+- byte-verified ENCODE mm10 blacklist provenance and a validated UCSC
+  mm10-to-mm39 liftOver (3,360 mapped and 75 unmapped intervals).
 
-## Data Sources
+The targeting comparison comprises **five distinct nuclease/PAM classes**
+across six modelled configurations. HEAL and SminiCRa are two Un1Cas12f1
+activation architectures represented by the same TTTR targeting class, so they
+are not counted as independent targeting rules. The dNme2Cas9 activator is a
+proposed sequence-level configuration, not a validated CRISPRa platform.
 
-The analysis uses publicly available ATAC-seq datasets:
+## Public input data
 
-| Dataset | GEO | States used |
-|---|---|---|
-| Gosselin et al. | GSE89960 | homeostatic adult microglia |
-| Zhang X / Kracht et al. | GSE175578 | naive, acute LPS, LPS-tolerized |
-| Zhang L et al. | GSE220041 | post-surgical sham, post-ischemic stroke |
+| Study | Accession | Contexts used | Replication used here |
+|---|---|---|---|
+| Gosselin et al. | GSE89960 | ex vivo adult homeostatic microglia | 2 biological replicates |
+| Zhang X/Kracht et al. | GSE175578 | PBS/PBS control, PBS/LPS, LPS/LPS | paired technical runs only |
+| Zhang et al. | GSE220041 | sham and post-ischemic stroke | 2 sham and 3 stroke biological replicates |
 
-Genome assembly: GRCm39/mm39
+The exact 13 ENA run URLs and MD5 checksums are frozen in
+[`config/samples.tsv`](config/samples.tsv). References are GRCm39/mm39 and
+GENCODE mouse vM33.
 
-Gene annotation: GENCODE vM33
+The six atlas columns are best understood as **surveyed dataset contexts**, not
+as a balanced causal experiment. Across-study differences remain confounded by
+laboratory, isolation, sequencing layout, depth, and cell composition. The
+within-study contrasts are PBS/PBS--PBS/LPS--LPS/LPS and sham--stroke.
 
-## Repository Structure
+## Reproduce the analysis
+
+Create and activate the pinned environment, then run Snakemake:
+
+```bash
+micromamba create -f environment.yml
+micromamba activate paper0-atlas
+snakemake -s workflow/Snakefile --cores 8 --rerun-incomplete
+```
+
+The workflow downloads and checksum-verifies the public FASTQs and reference
+files, performs uniform ATAC-seq processing, rebuilds all atlas tables and
+sensitivities, and regenerates the figures. Raw data, reference indexes, BAMs,
+bigWigs, and other intermediates are intentionally ignored by Git.
+
+Run the core definition regression tests with:
+
+```bash
+pytest -q tests
+```
+
+## Repository map
 
 ```text
-Paper0-CRISPRa-Targetability-Atlas/
-├── manuscript/
-│   ├── main.tex
-│   ├── main.pdf
-│   └── references.bib
+.
+├── config/
+│   ├── samples.tsv                         # ENA provenance and checksums
+│   └── therapeutic_genes_locked.csv       # frozen 55-gene panel metadata
+├── workflow/
+│   ├── Snakefile                          # complete raw-to-figure DAG
+│   └── scripts/                           # ATAC QC, consensus, depth/caller tests
+├── scripts/
+│   ├── prepare_reference.py               # canonical and sensitivity TSSs
+│   ├── prepare_blacklist.py               # validated mm10-to-mm39 blacklist lift
+│   ├── rebuild_atlas_strict_iupac.py      # guide-site-aware atlas rebuild
+│   ├── analysis_statistics.py             # stability and matched-null analyses
+│   ├── sync_analysis_outputs.py           # compact supplementary tables
+│   ├── summarize_results.py               # manuscript macros and result audit
+│   └── validate_release.py                 # fail-closed release invariants
+├── reference/                             # tracked TSS provenance tables/BEDs
+├── docs/                                  # frozen analysis contract and schemas
+├── supplementary/                         # publication source tables
+├── analysis_stats/                        # statistical and sensitivity outputs
 ├── figures/
 │   ├── scripts/
 │   └── output/
-├── supplementary/
-│   ├── table_S1_therapeutic_genes.csv
-│   ├── table_S2_targetability_full.tsv
-│   ├── table_S3_sgrna_recommendations.csv
-│   ├── table_S4_atac_qc.csv
-│   ├── table_S5_accessibility_dynamics.csv
-│   ├── table_S6_blacklist_mm10_original.bed
-│   ├── table_S6_blacklist_mm39_lifted.bed
-│   └── table_S7_statistical_tests.csv
-├── analysis_results/
-│   ├── browser_tracks_Tfeb.pdf/png
-│   ├── browser_tracks_Tfe3.pdf/png
-│   ├── frip_results.tsv
-│   ├── tss_enrichment.tsv
-│   ├── fragsize_*.tsv/png
-│   ├── idr_*.txt
-│   └── bigwigs/
-├── analysis_stats/
-│   ├── bootstrap_cis.tsv
-│   ├── pam_chromatin_loss.tsv
-│   └── permutation_results.tsv
-└── scripts/
-    ├── README.md
-    ├── rebuild_atlas_strict_iupac.py
-    ├── analysis_statistics.py
-    └── sync_analysis_outputs.py
+├── manuscript/
+│   ├── main.tex
+│   ├── main.pdf
+│   ├── references.bib
+│   └── results_macros.tex                 # workflow-generated values
+├── tests/
+├── environment.yml
+├── release_manifest.sha256                # SHA-256 for every release file
+└── LICENSE
 ```
 
-## Supplementary Files
+## Primary operational definition
 
-The manuscript lists the following supplementary files:
+For a gene, nuclease/PAM class, and dataset context, the primary call is true
+when at least one sequence-filtered candidate has its complete protospacer and
+PAM interval inside the applicable primary ATAC-seq peak set within the
+transcription-oriented window $-400$ to $-50$ bp from the selected TSS.
 
-| File | Description |
+For biologically replicated datasets, primary peaks contain sequence supported
+by at least two independent replicate peak calls after 50% reciprocal overlap.
+For the Zhang X/Kracht contexts, technical runs are pooled and the resulting
+calls are explicitly labelled as lacking biological replication.
+
+## Main outputs
+
+| File | Contents |
 |---|---|
-| `table_S1_therapeutic_genes.csv` | Curated 55-gene therapeutic panel |
-| `table_S2_targetability_full.tsv` | Full gene x Cas x state atlas matrix used by figure scripts and audit checks |
-| `table_S3_sgrna_recommendations.csv` | Candidate sgRNAs with atlas state flags and non-validated heuristic scores |
-| `table_S4_atac_qc.csv` | ATAC-seq QC metrics |
-| `table_S5_accessibility_dynamics.csv` | Six-state accessibility classification for therapeutic genes |
-| `table_S6_blacklist_*.bed` | ENCODE blacklist files used in filtering |
-| `table_S7_statistical_tests.csv` | Bootstrap intervals, descriptive PAM-to-chromatin loss counts, and peak-shuffle random-placement results |
+| `table_S1_therapeutic_genes.csv` | Frozen therapeutic panel and provenance |
+| `table_S2_targetability_full.tsv.gz` | Gzip-compressed genome-wide gene × class × context atlas (directly readable by pandas and standard command-line tools) |
+| `table_S3_candidate_protospacers.csv` | Candidate sites, peak evidence, TSS coordinates, and preliminary off-target summary |
+| `table_S3_offtarget_alignments.tsv` | PAM-valid Un1Cas12f1 alignments through three mismatches |
+| `table_S3_replicate_evidence.tsv` | Candidate-by-run peak support, signal, peak ID, and summit distance |
+| `table_S4_atac_qc.csv` | Per-run QC and primary-peak provenance |
+| `table_S5_accessibility_dynamics.csv` | Descriptive cross-context panel patterns |
+| `table_S7_statistical_tests.csv` | Fixed-panel stability and sensitivity summaries |
+| `analysis_stats/matched_depth_summary.tsv` | Requested/realized matched depth, seeds, and replicate-handling provenance |
+| `analysis_stats/peak_caller_concordance.tsv` | Matched-depth Genrich/MACS3 promoter-call concordance |
+| `analysis_stats/shared_peak_signal.tsv` | Continuous counts and CPM on the shared primary-peak universe |
+| `analysis_stats/release_validation.txt` | Machine-checked release invariants and expected dimensions |
+| `release_manifest.sha256` | Cryptographic hashes for the complete non-ignored release package |
 
-`table_S2_targetability_full.tsv` is approximately 39 MB and is tracked so that
-the main figures and numerical audit checks can run from a fresh clone.
+## Interpretation limits
 
-## Main Analyses
+ATAC accessibility is a useful guide-site prioritization variable, not a binary
+requirement for successful activation. The atlas does not model local
+nucleosome dynamics, 3D contacts, activation-domain potency, guide RNA folding,
+cell delivery, paralog-specific biology, or in vivo benefit. Cross-study
+contrasts cannot be assigned to biological state alone, and the technical-run
+contexts do not provide biological replication. All candidate protospacers
+require nuclease-specific computational review and experimental validation.
 
-The atlas evaluates:
+## Author and license
 
-- promoter PAM availability in the CRISPRa-optimal window (-400 to -50 bp from
-  TSS);
-- six Cas orthologs relevant to CRISPRa design;
-- ATAC-seq promoter accessibility across six microglial states;
-- predicted PAM + chromatin targetability;
-- accessibility dynamics among 55 curated therapeutic genes;
-- robustness/transparency analyses including bootstrap confidence intervals,
-  descriptive PAM-to-chromatin loss counts, peak-shuffle random-placement
-  analysis, and accessibility-criterion sensitivity analysis.
-
-## Reproducibility Notes
-
-The matrix-level canonical rebuild is `scripts/rebuild_atlas_strict_iupac.py`.
-It scans both strands with IUPAC-aware reverse complements, so Cas12f PAMs are
-reported as functional `TTTA`/`TTTG` PAMs in Table S3. The raw genome FASTA,
-promoter BED, and ATAC peak files are supplied as command-line inputs because
-the mouse genome and raw/intermediate sequencing files are not stored in this
-repository. The GEO accessions and reference resources are listed above and in
-the manuscript.
-
-To compile the manuscript locally:
-
-```bash
-cd manuscript
-pdflatex -interaction=nonstopmode main.tex
-bibtex main
-pdflatex -interaction=nonstopmode main.tex
-pdflatex -interaction=nonstopmode main.tex
-```
-
-To regenerate the atlas matrix and sgRNA table from local reference inputs:
-
-```bash
-python3 scripts/rebuild_atlas_strict_iupac.py \
-  --fasta path/to/mm39.fa \
-  --promoters path/to/promoters_crispra_optimal.bed
-```
-
-To regenerate statistical tables from Table S2 and sync the smaller
-supplementary tables:
-
-```bash
-python3 scripts/analysis_statistics.py
-python3 scripts/sync_analysis_outputs.py
-```
-
-## Important Limitations
-
-This repository supports a predictive computational resource. The atlas does not
-experimentally validate CRISPRa activation, sgRNA efficacy, or therapeutic
-benefit. Chromatin accessibility should be interpreted as a necessary but not
-sufficient condition for CRISPRa activity.
-
-The peak-shuffle analysis uses genome-wide shuffled peaks and is not a
-promoter-matched null model. It is best interpreted as a random-placement sanity
-check showing that observed promoter overlaps are not compatible with uniformly
-shuffled peaks. It does not test whether therapeutic promoters are enriched
-relative to matched promoters, nor whether each promoter-level prediction is
-experimentally functional.
-
-## License
-
-No license has been assigned yet. Contact the author before reuse beyond
-citation.
+Ernest Darell Zermeño (ORCID 0009-0002-1721-4526). Released under the
+[MIT License](LICENSE).

@@ -1,37 +1,31 @@
-cas	state	n_targetable	n_total	proportion	ci_lower	ci_upper
-CjCas9_MiniCAFE	LL_tolerized	32	55	0.5818	0.4545	0.7091
-CjCas9_MiniCAFE	PL_acute_LPS	32	55	0.5818	0.4545	0.7091
-CjCas9_MiniCAFE	PP_naive	31	55	0.5636	0.4364	0.6909
-CjCas9_MiniCAFE	homeostatic	22	55	0.4000	0.2727	0.5273
-CjCas9_MiniCAFE	sham_WT	41	55	0.7455	0.6364	0.8545
-CjCas9_MiniCAFE	stroke_WT	38	55	0.6909	0.5636	0.8182
-HEAL_Un1Cas12f1	LL_tolerized	27	55	0.4909	0.3636	0.6182
-HEAL_Un1Cas12f1	PL_acute_LPS	27	55	0.4909	0.3636	0.6182
-HEAL_Un1Cas12f1	PP_naive	25	55	0.4545	0.3273	0.5818
-HEAL_Un1Cas12f1	homeostatic	18	55	0.3273	0.2000	0.4545
-HEAL_Un1Cas12f1	sham_WT	36	55	0.6545	0.5273	0.7818
-HEAL_Un1Cas12f1	stroke_WT	33	55	0.6000	0.4727	0.7273
-Nme2Cas9	LL_tolerized	32	55	0.5818	0.4545	0.7091
-Nme2Cas9	PL_acute_LPS	32	55	0.5818	0.4545	0.7091
-Nme2Cas9	PP_naive	31	55	0.5636	0.4364	0.6909
-Nme2Cas9	homeostatic	22	55	0.4000	0.2727	0.5273
-Nme2Cas9	sham_WT	41	55	0.7455	0.6364	0.8545
-Nme2Cas9	stroke_WT	38	55	0.6909	0.5636	0.8182
-SaCas9	LL_tolerized	30	55	0.5455	0.4182	0.6727
-SaCas9	PL_acute_LPS	30	55	0.5455	0.4182	0.6727
-SaCas9	PP_naive	29	55	0.5273	0.4000	0.6545
-SaCas9	homeostatic	20	55	0.3636	0.2364	0.4909
-SaCas9	sham_WT	39	55	0.7091	0.5818	0.8182
-SaCas9	stroke_WT	36	55	0.6545	0.5273	0.7818
-SminiCRa_Un1Cas12f1	LL_tolerized	27	55	0.4909	0.3636	0.6182
-SminiCRa_Un1Cas12f1	PL_acute_LPS	27	55	0.4909	0.3636	0.6182
-SminiCRa_Un1Cas12f1	PP_naive	25	55	0.4545	0.3273	0.5818
-SminiCRa_Un1Cas12f1	homeostatic	18	55	0.3273	0.2182	0.4545
-SminiCRa_Un1Cas12f1	sham_WT	36	55	0.6545	0.5273	0.7818
-SminiCRa_Un1Cas12f1	stroke_WT	33	55	0.6000	0.4727	0.7273
-SpCas9	LL_tolerized	32	55	0.5818	0.4545	0.7091
-SpCas9	PL_acute_LPS	32	55	0.5818	0.4545	0.7091
-SpCas9	PP_naive	31	55	0.5636	0.4364	0.6909
-SpCas9	homeostatic	22	55	0.4000	0.2727	0.5273
-SpCas9	sham_WT	41	55	0.7455	0.6182	0.8545
-SpCas9	stroke_WT	38	55	0.6909	0.5636	0.8000
+cas	state	n_targetable	n_panel	proportion	stability_interval_lower	stability_interval_upper	resamples	seed	interpretation
+Un1Cas12f1_TTTR	homeostatic	23	55	0.41818181818181815	0.2909090909090909	0.5454545454545454	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Un1Cas12f1_TTTR	PP_control	28	55	0.509090909090909	0.38181818181818183	0.6363636363636364	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Un1Cas12f1_TTTR	PL_acute_LPS	33	55	0.6	0.4727272727272727	0.7272727272727273	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Un1Cas12f1_TTTR	LL_tolerized	31	55	0.5636363636363636	0.43636363636363634	0.6909090909090909	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Un1Cas12f1_TTTR	sham_WT	31	55	0.5636363636363636	0.43636363636363634	0.6909090909090909	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Un1Cas12f1_TTTR	stroke_WT	36	55	0.6545454545454545	0.5272727272727272	0.7818181818181819	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	homeostatic	25	55	0.45454545454545453	0.32727272727272727	0.5818181818181818	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	PP_control	32	55	0.5818181818181818	0.45454545454545453	0.7090909090909091	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	PL_acute_LPS	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	LL_tolerized	35	55	0.6363636363636364	0.509090909090909	0.7636363636363637	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	sham_WT	36	55	0.6545454545454545	0.5272727272727272	0.7818181818181819	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SaCas9_NNGRRT	stroke_WT	39	55	0.7090909090909091	0.5818181818181818	0.8181818181818182	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	homeostatic	31	55	0.5636363636363636	0.43636363636363634	0.6909090909090909	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	PP_control	35	55	0.6363636363636364	0.509090909090909	0.7636363636363637	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	PL_acute_LPS	39	55	0.7090909090909091	0.5818181818181818	0.8363636363636363	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	LL_tolerized	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	sham_WT	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+SpCas9_NGG	stroke_WT	42	55	0.7636363636363637	0.6545454545454545	0.8727272727272727	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	homeostatic	30	55	0.5454545454545454	0.41818181818181815	0.6727272727272727	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	PP_control	35	55	0.6363636363636364	0.509090909090909	0.7636363636363637	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	PL_acute_LPS	39	55	0.7090909090909091	0.5818181818181818	0.8181818181818182	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	LL_tolerized	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	sham_WT	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+CjCas9_NNNVRYM	stroke_WT	42	55	0.7636363636363637	0.6545454545454545	0.8727272727272727	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	homeostatic	30	55	0.5454545454545454	0.41818181818181815	0.6727272727272727	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	PP_control	35	55	0.6363636363636364	0.509090909090909	0.7636363636363637	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	PL_acute_LPS	39	55	0.7090909090909091	0.5818181818181818	0.8181818181818182	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	LL_tolerized	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	sham_WT	37	55	0.6727272727272727	0.5454545454545454	0.8	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
+Nme2Cas9_NNNNCC	stroke_WT	42	55	0.7636363636363637	0.6545454545454545	0.8727272727272727	10000	1729	percentile interval from resampling the fixed curated panel; not population inference
