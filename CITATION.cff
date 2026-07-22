@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this atlas or its code, please cite the archived release and the associated article."
+message: "If you use this atlas or its code, please cite the versioned tag and the associated article."
 title: "CRISPRa guide-site targetability atlas in murine microglia"
 type: software
 authors:
