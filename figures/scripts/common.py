@@ -1,4 +1,4 @@
-"""Shared plotting constants and loaders for the corrected atlas figures."""
+"""Shared plotting constants and loaders for the revised targetability figures."""
 from pathlib import Path
 
 import pandas as pd

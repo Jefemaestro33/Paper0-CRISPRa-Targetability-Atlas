@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed when a release-level atlas invariant is violated."""
+"""Fail closed when a release-level targetability invariant is violated."""
 from __future__ import annotations
 
 import argparse
@@ -75,7 +75,7 @@ def validate_atlas(path: Path) -> list[str]:
             assert truth(row["targetable"]) == (complete > 0), f"Targetability mismatch: {key}"
             assert not truth(row["targetable"]) or total > 0, f"Positive call without candidate: {key}"
     expected_rows = EXPECTED_GENES * len(EXPECTED_CLASSES) * len(EXPECTED_CONTEXTS)
-    assert row_count == expected_rows, f"Atlas rows {row_count:,} != {expected_rows:,}"
+    assert row_count == expected_rows, f"Targetability rows {row_count:,} != {expected_rows:,}"
     assert len(genes) == EXPECTED_GENES, f"Genes {len(genes):,} != {EXPECTED_GENES:,}"
     assert classes == set(EXPECTED_CLASSES), f"Unexpected classes: {classes}"
     assert contexts == EXPECTED_CONTEXTS, f"Unexpected contexts: {contexts}"

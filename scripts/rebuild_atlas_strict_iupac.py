@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild the guide-site-aware CRISPRa targetability atlas.
+"""Rebuild the guide-site-aware CRISPRa targetability matrix.
 
 Primary targetability requires the complete protospacer-plus-PAM interval to be
 contained in the context-specific primary ATAC-seq peak set.  Biological
@@ -503,7 +503,7 @@ def write_table_s3(
                         "heuristic_score": hit.heuristic_score,
                         "n_primary_states": sum(primary.values()),
                         "candidate_class": candidate_class(primary),
-                        "off_target_status": "not_evaluated_by_atlas_rebuild",
+                        "off_target_status": "not_evaluated_by_targetability_rebuild",
                         "off_target_summary": "See nuclease-aware external validation before use.",
                         "note": (
                             "Guide-specific predictive candidate. Primary flags require the complete "

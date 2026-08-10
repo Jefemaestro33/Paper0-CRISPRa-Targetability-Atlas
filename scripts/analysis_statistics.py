@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Statistical and robustness analyses for the guide-site-aware atlas.
+"""Statistical and robustness analyses for the guide-site-aware matrix.
 
 The curated 55-gene panel is the complete panel of interest, not a random
 sample of all therapeutic genes.  Bootstrap intervals are therefore labelled

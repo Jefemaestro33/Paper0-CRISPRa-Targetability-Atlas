@@ -15,12 +15,13 @@ checks pass.
 | Six ortholog claim | Reframed as five nuclease/PAM targeting classes represented by six CRISPRa configurations; HEAL and SminiCRa share one class. | Table 1, Table S2 |
 | Absolute chromatin language | Accessibility is described as a prioritization feature, not a necessary or sufficient condition for CRISPRa. | manuscript |
 | Statistical interpretation | Bootstrap output is explicitly fixed-panel resampling stability; a promoter-matched non-panel null and within-panel Fisher tests are separate. | `scripts/analysis_statistics.py`, `scripts/within_panel_functional_associations.py` |
+| Cas-class multiplicity | Added sequence-level and primary-call distributions for genes supported by exactly 0--5 targeting classes, genome-wide and in the locked panel. | `scripts/cas_multiplicity_summary.py`, `analysis_stats/cas_multiplicity_summary.tsv`, Table S7 |
 | Functional enrichment universe | Genome-wide GO claims were removed; functional associations use the frozen 55-gene universe with BH correction across the complete family. | Table S7, Supplementary Figure S5 |
-| Result-derived panel metadata | Legacy accessibility-pattern labels were removed from the frozen panel input; revised support patterns are generated only from the rebuilt atlas. | `config/therapeutic_genes_locked.csv`, Table S5 |
+| Result-derived panel metadata | Legacy accessibility-pattern labels were removed from the frozen panel input; revised support patterns are generated only from the rebuilt targetability matrix. | `config/therapeutic_genes_locked.csv`, Table S5 |
 | Candidate recommendations | Renamed candidate protospacers and supplied exact target, spacer, PAM, TSS, peak, summit, signal, context, and individual-run provenance. | Table S3 and run-level companion |
 | Preliminary off-target screen | Un1Cas12f1 candidates receive exhaustive Bowtie alignments through three mismatches followed by orientation-aware TTTR validation and locus annotation; limitations are explicit. | Table S3 alignments |
 | Genome-wide presentation | Genome-wide sequence and guide-site coverage are moved into the main results and main Figure 2. | manuscript, Figure 2 |
-| Reproducibility | Added a raw-FASTQ Snakemake DAG, checksums, pinned environment, tests, fail-closed release invariants, analysis contract, output schema, license, citation metadata, deterministic gzip for the full atlas, and release files. | repository root, `workflow/`, `tests/`, `analysis_stats/release_validation.txt` |
+| Reproducibility | Added a raw-FASTQ Snakemake DAG, checksums, pinned environment, tests, fail-closed release invariants, analysis contract, output schema, license, citation metadata, deterministic gzip for the full targetability matrix, and release files. | repository root, `workflow/`, `tests/`, `analysis_stats/release_validation.txt` |
 | Figure legibility | Figures are regenerated as individual vector PDFs; locus panels use canonical-TSS-centred zooms with peaks and candidate positions. | `figures/output/` |
 | Reference metadata | Every DOI is checked against Crossref and the identified HEAL, SminiCRa, crisprVerse, Dräger, and stroke metadata errors are corrected. | `scripts/audit_reference_dois.sh`, `manuscript/references.bib` |
 
@@ -30,7 +31,7 @@ before the final rebuild:
 1. paired-end blacklist removal now drops an intact fragment when either mate
    overlaps a blacklist interval, avoiding flagged-but-orphaned reads in QC and
    downsampling;
-2. the FASTA index is a declared workflow product, preventing concurrent atlas
+2. the FASTA index is a declared workflow product, preventing concurrent matrix
    jobs from racing while creating the same `.fai` file.
 3. the inherited mm39 blacklist contained 18 inverted intervals; it was
    replaced by a fresh, validated liftOver from the byte-verified official
@@ -46,3 +47,38 @@ before the final rebuild:
    a regression test now fails if this isolation is lost; and
 7. candidate-table terminology now uses `candidate_class` throughout rather
    than implying that computationally ranked protospacers are recommendations.
+
+## Post-decision major-revision materials
+
+After the BMC Genomics major-revision decision, an exploratory human
+ortholog-panel ATAC support check was added to address the reviewers'
+translation and hypothesis-generation concerns without reframing the resource
+as a human atlas.
+
+Integrated files:
+
+- `docs/BMC_MAJOR_REVISION_PLAN.md`: work-package plan mapping editor and
+  reviewer concerns to required revision actions.
+- `docs/HUMAN_ORTHOLOG_ATAC_CHECK.md`: method, results, caveats, and audit
+  record for the human exploratory analysis.
+- `docs/ARCHIVAL_RELEASE_CHECKLIST.md`: versioned release and Zenodo packaging
+  checklist.
+- `scripts/human_ortholog_atac_check.py`: reproducible generator for the human
+  ortholog-panel outputs.
+- `analysis_stats/human_ortholog_atac/`: regenerated compact output tables.
+- `analysis_stats/cas_multiplicity_summary.tsv`: reviewer-requested
+  multiplicity counts across the five targeting classes.
+
+The human check uses GENCODE v19/hg19 promoters and public ATAC peak files from
+GSE206479 and GSE245522.  It preserves the same PAM classes, sequence filters,
+and complete-protospacer-plus-PAM-in-peak primary rule as the murine rebuild.
+The result should be used only as a cross-dataset human ortholog sanity check:
+it does not validate CRISPRa activity, does not create a human atlas, and does
+not remove the need to present the primary resource as murine/preclinical.
+
+Audit note: the selected human `TFE3` promoter is supported across both human
+datasets, while the selected human `TFEB` promoter is unsupported under the
+same single-promoter rule.  A transcript-level sensitivity check showed that
+alternative `TFEB` TSS choices can be accessible, so the manuscript must state
+the `TFEB` result as promoter/TSS-dependent rather than as a gene-wide negative
+claim.

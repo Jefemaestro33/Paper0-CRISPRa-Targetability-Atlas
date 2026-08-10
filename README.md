@@ -1,11 +1,12 @@
-# CRISPRa guide-site targetability atlas in murine microglia
+# CRISPRa guide-site targetability dataset in murine microglia
 
 This repository contains the manuscript and the end-to-end computational
-workflow for a genome-wide, microglia-focused CRISPRa guide-site atlas.
+workflow for a genome-wide, microglia-focused CRISPRa guide-site targetability
+resource.
 The resource scans a fixed promoter window, identifies candidate
 protospacer--PAM intervals, and asks whether each **complete interval** is
-contained in an ATAC-seq peak. It is a prioritization resource: an atlas call
-does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
+contained in an ATAC-seq peak. It is a prioritization resource: a positive
+call does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
 
 ## What the revision changes
 
@@ -49,9 +50,9 @@ The exact 13 ENA run URLs and MD5 checksums are frozen in
 [`config/samples.tsv`](config/samples.tsv). References are GRCm39/mm39 and
 GENCODE mouse vM33.
 
-The six atlas columns are best understood as **surveyed dataset contexts**, not
-as a balanced causal experiment. Across-study differences remain confounded by
-laboratory, isolation, sequencing layout, depth, and cell composition. The
+The six context columns are best understood as **surveyed dataset contexts**,
+not as a balanced causal experiment. Across-study differences remain confounded
+by laboratory, isolation, sequencing layout, depth, and cell composition. The
 within-study contrasts are PBS/PBS--PBS/LPS--LPS/LPS and sham--stroke.
 
 ## Reproduce the analysis
@@ -65,7 +66,7 @@ snakemake -s workflow/Snakefile --cores 8 --rerun-incomplete
 ```
 
 The workflow downloads and checksum-verifies the public FASTQs and reference
-files, performs uniform ATAC-seq processing, rebuilds all atlas tables and
+files, performs uniform ATAC-seq processing, rebuilds all targetability tables and
 sensitivities, and regenerates the figures. Raw data, reference indexes, BAMs,
 bigWigs, and other intermediates are intentionally ignored by Git.
 
@@ -88,7 +89,7 @@ pytest -q tests
 ├── scripts/
 │   ├── prepare_reference.py               # canonical and sensitivity TSSs
 │   ├── prepare_blacklist.py               # validated mm10-to-mm39 blacklist lift
-│   ├── rebuild_atlas_strict_iupac.py      # guide-site-aware atlas rebuild
+│   ├── rebuild_atlas_strict_iupac.py      # guide-site-aware matrix rebuild
 │   ├── analysis_statistics.py             # stability and matched-null analyses
 │   ├── sync_analysis_outputs.py           # compact supplementary tables
 │   ├── summarize_results.py               # manuscript macros and result audit
@@ -128,13 +129,14 @@ calls are explicitly labelled as lacking biological replication.
 | File | Contents |
 |---|---|
 | `table_S1_therapeutic_genes.csv` | Frozen therapeutic panel and provenance |
-| `table_S2_targetability_full.tsv.gz` | Gzip-compressed genome-wide gene × class × context atlas (directly readable by pandas and standard command-line tools) |
+| `table_S2_targetability_full.tsv.gz` | Gzip-compressed genome-wide gene × class × context targetability matrix (directly readable by pandas and standard command-line tools) |
 | `table_S3_candidate_protospacers.csv` | Candidate sites, peak evidence, TSS coordinates, and preliminary off-target summary |
 | `table_S3_offtarget_alignments.tsv` | PAM-valid Un1Cas12f1 alignments through three mismatches |
 | `table_S3_replicate_evidence.tsv` | Candidate-by-run peak support, signal, peak ID, and summit distance |
 | `table_S4_atac_qc.csv` | Per-run QC and primary-peak provenance |
 | `table_S5_accessibility_dynamics.csv` | Descriptive cross-context panel patterns |
-| `table_S7_statistical_tests.csv` | Fixed-panel stability and sensitivity summaries |
+| `table_S7_statistical_tests.csv` | Fixed-panel stability, Cas-class multiplicity, and sensitivity summaries |
+| `analysis_stats/cas_multiplicity_summary.tsv` | Genes supported by exactly 0--5 targeting classes at sequence and primary-call layers |
 | `analysis_stats/matched_depth_summary.tsv` | Requested/realized matched depth, seeds, and replicate-handling provenance |
 | `analysis_stats/peak_caller_concordance.tsv` | Matched-depth Genrich/MACS3 promoter-call concordance |
 | `analysis_stats/shared_peak_signal.tsv` | Continuous counts and CPM on the shared primary-peak universe |
@@ -144,7 +146,7 @@ calls are explicitly labelled as lacking biological replication.
 ## Interpretation limits
 
 ATAC accessibility is a useful guide-site prioritization variable, not a binary
-requirement for successful activation. The atlas does not model local
+requirement for successful activation. The resource does not model local
 nucleosome dynamics, 3D contacts, activation-domain potency, guide RNA folding,
 cell delivery, paralog-specific biology, or in vivo benefit. Cross-study
 contrasts cannot be assigned to biological state alone, and the technical-run

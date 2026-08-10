@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synchronize compact supplementary tables from corrected atlas outputs."""
+"""Synchronize compact supplementary tables from corrected targetability outputs."""
 from __future__ import annotations
 
 import csv
@@ -104,6 +104,7 @@ def write_s7() -> None:
         ("pam_to_guide_site_loss", STATS / "pam_chromatin_loss.tsv"),
         ("matched_promoter_null", STATS / "matched_promoter_null.tsv"),
         ("analysis_sensitivity", STATS / "sensitivity_summary.tsv"),
+        ("cas_class_multiplicity", STATS / "cas_multiplicity_summary.tsv"),
     ]
     for analysis, path in sources:
         if not path.exists():

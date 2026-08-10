@@ -8,6 +8,12 @@ Genes: 21,599; locked panel: 55; raw runs: 13
 - CjCas9_NNNVRYM: genome PAM/protospacer 21590/21599 (100.0%); panel 55/55 (100.0%).
 - Nme2Cas9_NNNNCC: genome PAM/protospacer 21568/21599 (99.9%); panel 55/55 (100.0%).
 
+Cas-class multiplicity:
+- Sequence layer: 19853/21599 genome genes and 50/55 panel genes have passing candidates for all five targeting classes.
+- Sequence layer: 6 genome genes have candidates for exactly one class and 2 have none.
+- Any-context primary layer: 9675/21599 genome genes and 39/55 panel genes have support for all five classes.
+- Any-context primary layer: 9984 genome genes and 10 panel genes have no support for any class.
+
 Un1Cas12f1 panel guide-site calls:
 - homeostatic: 23/55 (41.8%).
 - PP_control: 28/55 (50.9%).

@@ -34,10 +34,19 @@ guide-site-aware reanalysis.
 
 - Six columns are dataset contexts, not a balanced causal state experiment.
 - ATAC support is a prioritization feature, not a universal requirement.
-- A negative atlas call is not evidence that a locus cannot be activated.
+- A negative resource call is not evidence that a locus cannot be activated.
 - Panel resampling measures stability of the fixed panel, not inference to all
   possible therapeutic genes.
 - Candidate rankings and off-target counts require experimental validation.
 
 Random seed for resampling, matched panels, and downsampling: 1729, with
 deterministic per-condition offsets where stated in source tables.
+
+## Post-review exploratory human ortholog check
+
+The human ortholog-panel analysis in `analysis_stats/human_ortholog_atac/` is
+not part of the primary murine resource definition.  It is a revision-response
+robustness check using GENCODE v19/hg19 promoters and public iPSC-/hPSC-derived
+microglia ATAC peak files from GSE206479 and GSE245522.  It preserves the same
+PAM classes, sequence filters, and complete-site-in-peak primary call, but it
+does not create a human atlas and does not validate CRISPRa activity.

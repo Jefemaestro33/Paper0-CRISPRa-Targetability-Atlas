@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+
 for script in \
   figures/scripts/fig1_overview.py \
   figures/scripts/fig2_pam_availability.py \
@@ -16,5 +18,5 @@ for script in \
   figures/scripts/figS6_cross_validation.py \
   figures/scripts/figS7_permutation.py
 do
-  python "$script"
+  "$PYTHON_BIN" "$script"
 done

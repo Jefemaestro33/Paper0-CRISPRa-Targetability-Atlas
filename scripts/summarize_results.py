@@ -22,6 +22,7 @@ def main():
     dynamics=pd.read_csv(ROOT/"supplementary/table_S5_accessibility_dynamics.csv")
     qc=pd.read_csv(ROOT/"supplementary/table_S4_atac_qc.csv"); runs=qc[qc.level=="run"]
     sensitivity=pd.read_csv(ROOT/"analysis_stats/sensitivity_summary.tsv",sep="\t")
+    multiplicity=pd.read_csv(ROOT/"analysis_stats/cas_multiplicity_summary.tsv",sep="\t")
     tss=pd.read_csv(ROOT/"reference/tss_selection.tsv",sep="\t")
     macros={"NGene":atlas.gene.nunique(),"NPanel":panel.gene.nunique(),"NRun":len(runs)}
     lines=["# Final result audit","",f"Genes: {macros['NGene']:,}; locked panel: {macros['NPanel']}; raw runs: {macros['NRun']}",""]
@@ -34,6 +35,32 @@ def main():
         for state in STATES:
             state_rows=panel[(panel.cas==cas)&(panel.state==state)]
             n=int(state_rows.targetable.sum()); macros[f"{label}{STATE_MACRO[state]}TargetN"]=n; macros[f"{label}{STATE_MACRO[state]}TargetPct"]=pct(n/len(state_rows))
+    def multiplicity_n(scope: str, metric: str, state: str, n_supported_classes: int) -> int:
+        rows=multiplicity[
+            (multiplicity.scope==scope)
+            & (multiplicity.metric==metric)
+            & (multiplicity.state==state)
+            & (multiplicity.n_supported_classes==n_supported_classes)
+        ]
+        if len(rows) != 1:
+            raise ValueError(f"Expected one multiplicity row for {scope}/{metric}/{state}/{n_supported_classes}; found {len(rows)}")
+        return int(rows.iloc[0].genes)
+    macros["MultiGenomeSeqAllFiveN"]=multiplicity_n("genome","sequence_candidate","sequence_window",5)
+    macros["MultiPanelSeqAllFiveN"]=multiplicity_n("locked_panel","sequence_candidate","sequence_window",5)
+    macros["MultiGenomeSeqOneN"]=multiplicity_n("genome","sequence_candidate","sequence_window",1)
+    macros["MultiGenomeSeqNoneN"]=multiplicity_n("genome","sequence_candidate","sequence_window",0)
+    macros["MultiGenomeAnyAllFiveN"]=multiplicity_n("genome","primary_targetable_any_context","any_context",5)
+    macros["MultiPanelAnyAllFiveN"]=multiplicity_n("locked_panel","primary_targetable_any_context","any_context",5)
+    macros["MultiGenomeAnyNoneN"]=multiplicity_n("genome","primary_targetable_any_context","any_context",0)
+    macros["MultiPanelAnyNoneN"]=multiplicity_n("locked_panel","primary_targetable_any_context","any_context",0)
+    lines.extend([
+        "",
+        "Cas-class multiplicity:",
+        f"- Sequence layer: {macros['MultiGenomeSeqAllFiveN']}/{macros['NGene']} genome genes and {macros['MultiPanelSeqAllFiveN']}/{macros['NPanel']} panel genes have passing candidates for all five targeting classes.",
+        f"- Sequence layer: {macros['MultiGenomeSeqOneN']} genome genes have candidates for exactly one class and {macros['MultiGenomeSeqNoneN']} have none.",
+        f"- Any-context primary layer: {macros['MultiGenomeAnyAllFiveN']}/{macros['NGene']} genome genes and {macros['MultiPanelAnyAllFiveN']}/{macros['NPanel']} panel genes have support for all five classes.",
+        f"- Any-context primary layer: {macros['MultiGenomeAnyNoneN']} genome genes and {macros['MultiPanelAnyNoneN']} panel genes have no support for any class.",
+    ])
     un_context_values=[]
     class_spreads=[]
     genome_context_values=[]

@@ -8,6 +8,8 @@
   complete-protospacer-plus-PAM-in-peak calls.
 - `analysis_statistics.py`: fixed-panel resampling stability, PAM-to-guide-site
   attrition, TSS/depth/caller sensitivity, and promoter-matched null.
+- `cas_multiplicity_summary.py`: reports how many genes are supported by
+  exactly 0--5 targeting classes at sequence and primary-call layers.
 - `sync_analysis_outputs.py`: derives compact supplementary tables from the
   canonical genome-wide matrix.
 - `within_panel_functional_associations.py`: descriptive, within-panel
@@ -19,6 +21,10 @@
 - `build_release_manifest.py`: hashes every non-ignored release file after the
   final PDF and outputs have been regenerated.
 - `build_figures.sh`: rebuilds all main and supplementary figure files.
+- `human_ortholog_atac_check.py`: regenerates the post-review exploratory
+  human ortholog-panel ATAC support check from public GSE206479/GSE245522
+  peak files and GENCODE v19/hg19 promoters.  This is a revision-response
+  robustness analysis, not part of the primary murine targetability rebuild.
 
 Raw-to-result orchestration and the lower-level ATAC-seq utilities are in
 `workflow/Snakefile` and `workflow/scripts/`, including the normalized

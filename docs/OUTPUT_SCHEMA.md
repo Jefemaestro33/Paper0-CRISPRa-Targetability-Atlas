@@ -1,6 +1,6 @@
 # Output schema
 
-## Table S2: genome-wide atlas
+## Table S2: genome-wide targetability matrix
 
 Each row is one gene × targeting class × dataset context.
 
@@ -49,6 +49,9 @@ the primary peak rule and peak count. Technical runs are explicitly identified.
 - `bootstrap_cis.tsv`: fixed-panel resampling stability intervals.
 - `pam_chromatin_loss.tsv`: nested sequence-to-primary-call attrition counts.
 - `matched_promoter_null.tsv`: matched non-panel promoter comparison.
+- `cas_multiplicity_summary.tsv`: genes supported by exactly 0--5 targeting
+  classes at sequence, per-context primary-call, and any-context primary-call
+  layers.
 - `sensitivity_summary.tsv`: TSS/depth/caller deltas versus primary.
 - `therapeutic_gene_stability.tsv`: gene-level calls under all variants.
 - `within_panel_functional_associations.tsv`: Fisher tests within the fixed
