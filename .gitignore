@@ -43,6 +43,7 @@ response_to_reviewers*
 reviewer_response*
 point_by_point_response*
 *.bundle
+release_archives/
 
 # Local secrets and credentials
 .env

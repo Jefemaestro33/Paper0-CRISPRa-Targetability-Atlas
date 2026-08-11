@@ -7,6 +7,12 @@ versioned, persistent, reconstructable resource.
 
 - Create a clean commit containing the revised manuscript, scripts, source
   tables, figures, documentation, validation outputs, and manifest.
+- Build a local archival package from the clean approved commit:
+
+```bash
+python3 scripts/prepare_archival_package.py
+```
+
 - Recreate or restore ignored workflow intermediates needed to rebuild Figure 6:
   `workflow/results/bigwig/*.bw`.
 - Rerun the full figure build:
@@ -101,6 +107,9 @@ python3 scripts/build_release_manifest.py
 - `docs/REVISION_AUDIT.md`
 - `docs/POST_REVIEW_VALIDATION_LOG.md`
 - `docs/HUMAN_ORTHOLOG_ATAC_CHECK.md`
+- `docs/REVISION_DECISIONS.md`
+- `docs/FIGURE_VISUAL_AUDIT.md`
+- `scripts/prepare_archival_package.py`
 
 ## Inputs to archive or identify with persistent checksums
 

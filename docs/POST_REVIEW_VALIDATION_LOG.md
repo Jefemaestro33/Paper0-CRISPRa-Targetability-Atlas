@@ -134,6 +134,9 @@ and Figure 3 were rendered to PNG and visually inspected after correction:
 - Figure 3 spacing was improved and the gene-level color encoding is described
   in the manuscript legend.
 
+The full current figure set was inspected as a contact sheet. The audit is
+recorded in `docs/FIGURE_VISUAL_AUDIT.md`.
+
 ## Checks blocked by local environment
 
 ### Pytest command-line runner

@@ -136,6 +136,8 @@ Implementation status:
 - `docs/ARCHIVAL_RELEASE_CHECKLIST.md` records the files, inputs, checksums,
   figure intermediates, and final Data availability update needed before
   resubmission.
+- `scripts/prepare_archival_package.py` creates a local GitHub/Zenodo-style
+  tarball from tracked files and records whether bigWigs were included.
 - Remaining work: create the actual versioned GitHub/Zenodo release after the
   final source state is approved.
 
@@ -394,11 +396,14 @@ Response stance:
 ## Current status
 
 - Human exploratory check: integrated and documented.
+- Discretionary revision decisions: closed in `docs/REVISION_DECISIONS.md`.
 - Manuscript edits: partially integrated; title, human Results/Methods,
   availability, terminology cleanup, panel-rationale expansion, and Cas-class
   multiplicity reporting are in place.
 - Figure regeneration: partial; Figures 1--5 regenerated, Figure 6 requires
-  ignored bigWig intermediates or a full Snakemake rebuild.
-- Release/Zenodo archival package: pending.
+  ignored bigWig intermediates or a full Snakemake rebuild; current visual
+  audit recorded in `docs/FIGURE_VISUAL_AUDIT.md`.
+- Release/Zenodo archival package: local packaging script added; actual remote
+  DOI/release pending.
 - Response letter: pending.
 - GitHub visibility/push: not changed locally; requires explicit confirmation.
