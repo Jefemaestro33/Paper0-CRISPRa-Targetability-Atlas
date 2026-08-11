@@ -137,6 +137,23 @@ and Figure 3 were rendered to PNG and visually inspected after correction:
 The full current figure set was inspected as a contact sheet. The audit is
 recorded in `docs/FIGURE_VISUAL_AUDIT.md`.
 
+Follow-up check on 2026-08-11: the tracked Figure 6 PNG/PDF were inspected
+directly and already include numeric y-axis scales plus the global
+`CPM-normalized ATAC signal` label; the manuscript legend states that the six
+contexts share a y-axis within each gene column and that the two gene columns
+are scaled independently. Thus the reviewer-facing y-axis/scale issue is
+addressed in the current tracked figure/legend. The remaining Figure 6 issue is
+not visual content but regeneration of the ignored signal intermediates for a
+final archival rebuild.
+
+The FASTQ inputs listed in `config/samples.tsv` were checked against ENA HTTP
+headers before attempting a raw-data rebuild. The compressed FASTQs alone total
+18,145,869,953 bytes (16.90 GiB), while the local filesystem had only about
+12 GiB available. Because the workflow would also need mm39 references, bowtie
+indices, sorted BAMs, duplicate-marked/filter BAMs, condition BAMs, peak-calling
+temporaries, and bigWigs, a full local FASTQ-to-bigWig rebuild is not viable on
+the current disk state without freeing or attaching substantially more space.
+
 ## Checks blocked by local environment
 
 ### Pytest command-line runner
@@ -164,6 +181,7 @@ into the active environment.
 ## Remaining validation work
 
 - Recreate or restore `workflow/results/bigwig/*.bw` and rerun the complete
-  figure build, including Figure 6, before final archival release.
+  figure build, including Figure 6, before final archival release if the archive
+  is intended to include derived signal tracks.
 - Run the full raw-to-result Snakemake workflow before final resubmission or
-  archival release.
+  archival release on a machine/work directory with sufficient free disk space.

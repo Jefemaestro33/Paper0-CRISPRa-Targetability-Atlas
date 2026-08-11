@@ -52,9 +52,12 @@ record that Figure 6 signal tracks require a full Snakemake rebuild or restored
 workflow intermediates.
 
 Current local status: the Paper0 bigWigs are not present in this checkout, and
-Snakemake is not installed in the currently available local environments. Figure
-6 therefore remains a final-release dependency rather than a completed local
-artifact regeneration step.
+Snakemake is not installed in the currently available local environments. A
+2026-08-11 ENA header check found that the compressed FASTQs alone total
+16.90 GiB, while the local filesystem had about 12 GiB available; the full
+workflow would require additional reference, index, BAM, peak-calling, and
+bigWig space. Figure 6 therefore remains a final-release rebuild dependency
+rather than a completed local artifact regeneration step.
 
 ## 5. Figures
 
@@ -68,7 +71,9 @@ Already implemented:
   scope in the legend.
 - Figure 4: clarified filled-circle versus red-outline encoding in the legend.
 - Figure 6: legend states that contexts share a y-axis scale within each gene
-  column and that the two gene columns are scaled independently.
+  column and that the two gene columns are scaled independently; direct PNG/PDF
+  inspection confirms numeric y-axis scales and a global CPM-normalized signal
+  label are present.
 
 Remaining final-release action: regenerate Figure 6 after bigWigs are restored
-or recreated, then rerun the visual audit.
+or recreated, then rerun the visual audit if rebuilding the release artifacts.

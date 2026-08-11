@@ -143,10 +143,14 @@ Status: addressed in text; final response should cite Table S1.
 Response draft: We revised Figure 3 and Figure 4 legends, made explicit that
 Figure 3C is intentionally restricted to Un1Cas12f1 while all targeting classes
 are reported in Figure 3B/Table S2, improved Figure 3 spacing, and clarified
-Figure 6 scale information. Figure 6 regeneration requires restoration or
-recreation of the ignored bigWig intermediates before final release.
+Figure 6 scale information. The current tracked Figure 6 includes numeric
+y-axis scales and a CPM-normalized signal label; the figure legend further
+states how y-axis scales are shared within gene columns. Regenerating Figure 6
+from source requires restoration or recreation of the ignored bigWig
+intermediates before the final archival rebuild.
 
-Status: partially addressed; final visual audit pending for Figure 6 rebuild.
+Status: addressed for the manuscript/response; final reproducibility rebuild
+pending for archival packaging if derived bigWigs are included.
 
 ## Reviewer 2
 
