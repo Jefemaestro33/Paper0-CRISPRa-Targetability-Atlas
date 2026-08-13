@@ -1,7 +1,7 @@
 condition	original_fragments_or_reads	requested_target_fragments_or_reads	actual_matched_fragments_or_reads	sampling_fraction	seeds	matched_depth_rule	n_source_units	genrich_peaks	macs3_peaks
-LL_tolerized	27495124	21761436	21758094	0.79146528	1729	cross_lane_deduplicated_technical_pool_downsampling	1	40753	36648
-PL_acute_LPS	28936311	21761436	21761954	0.75204597	1829	cross_lane_deduplicated_technical_pool_downsampling	1	40842	37232
-PP_control	28790197	21761436	21762942	0.75586270	1929	cross_lane_deduplicated_technical_pool_downsampling	1	41777	37542
-homeostatic	27661983	21761436	21761475	0.78669111	2029;2030	replicate_level_downsampling_then_replicate_consensus	2	47324	42460
-sham_WT	22275683	21761436	21761427	0.97691442	2129;2130	replicate_level_downsampling_then_replicate_consensus	2	41533	30142
-stroke_WT	21761436	21761436	21761436	1.00000000	2229;2230;2231	replicate_level_downsampling_then_replicate_consensus	3	57001	30292
+LL_tolerized	27495123	21761465	21758125	0.79146636	1729	cross_lane_deduplicated_technical_pool_downsampling	1	40753	36648
+PL_acute_LPS	28936311	21761465	21761989	0.75204697	1829	cross_lane_deduplicated_technical_pool_downsampling	1	40842	37232
+PP_control	28790197	21761465	21762969	0.75586371	1929	cross_lane_deduplicated_technical_pool_downsampling	1	41777	37542
+homeostatic	27661985	21761465	21761520	0.78669210	2029;2030	replicate_level_downsampling_then_replicate_consensus	2	47326	42459
+sham_WT	22275744	21761465	21761402	0.97691305	2129;2130	replicate_level_downsampling_then_replicate_consensus	2	41527	30141
+stroke_WT	21761465	21761465	21761465	1.00000000	2229;2230;2231	replicate_level_downsampling_then_replicate_consensus	3	56992	30302

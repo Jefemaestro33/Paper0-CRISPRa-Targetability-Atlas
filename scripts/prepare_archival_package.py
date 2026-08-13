@@ -2,9 +2,10 @@
 """Create a local GitHub/Zenodo-style archival package.
 
 The package contains the tracked repository state plus optional derived signal
-tracks if they are present locally. It intentionally avoids private editorial
-folders and does not attempt to create a remote DOI. The output tarball can be
-uploaded to a persistent archive after final approval.
+tracks, peak files, sensitivity outputs, PNG renderings, and VM logs if they are
+present locally. It intentionally avoids private editorial folders and does not
+attempt to create a remote DOI. The output tarball can be uploaded to a
+persistent archive after final approval.
 """
 from __future__ import annotations
 
@@ -26,6 +27,20 @@ BIGWIGS = [
     ROOT / "workflow/results/bigwig/sham_WT.bw",
     ROOT / "workflow/results/bigwig/stroke_WT.bw",
 ]
+OPTIONAL_RELEASE_GLOBS = [
+    "figures/output/*.png",
+    "workflow/logs/*.vm.log",
+    "workflow/results/bigwig/*.bw",
+    "workflow/results/peaks/primary/*.narrowPeak",
+    "workflow/results/peaks/replicate/*.narrowPeak",
+    "workflow/results/peaks/pooled/*.narrowPeak",
+    "workflow/results/matched_depth/*.narrowPeak",
+    "workflow/results/matched_depth/*.tsv",
+    "workflow/results/sensitivity/*.tsv",
+    "workflow/results/sensitivity/*.csv",
+    "workflow/results/sensitivity/tss/*.tsv",
+    "workflow/results/shared_peak_signal.tsv",
+]
 
 
 def sha256(path: Path) -> str:
@@ -45,6 +60,15 @@ def tracked_files() -> list[Path]:
     return [Path(item.decode()) for item in raw.split(b"\0") if item]
 
 
+def optional_release_files() -> list[Path]:
+    paths: set[Path] = set()
+    for pattern in OPTIONAL_RELEASE_GLOBS:
+        for path in ROOT.glob(pattern):
+            if path.is_file():
+                paths.add(path)
+    return sorted(paths)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--outdir", type=Path, default=DEFAULT_OUTDIR)
@@ -61,6 +85,7 @@ def main() -> None:
     sha_path = outdir / f"{tar_path.name}.sha256"
 
     files = tracked_files()
+    optional_files = optional_release_files()
     present_bigwigs = [path for path in BIGWIGS if path.exists()]
     missing_bigwigs = [path for path in BIGWIGS if not path.exists()]
 
@@ -72,7 +97,7 @@ def main() -> None:
         "",
         "Contents:",
         "- tracked repository files from git ls-files",
-        "- optional workflow/results/bigwig/*.bw files if present locally",
+        "- optional ignored workflow/figure/log files if present locally",
         "",
         "BigWig status:",
     ]
@@ -92,7 +117,7 @@ def main() -> None:
     with tarfile.open(tar_path, "w:gz") as archive:
         for relative in files:
             archive.add(ROOT / relative, arcname=f"{package_name}/{relative.as_posix()}")
-        for path in present_bigwigs:
+        for path in optional_files:
             archive.add(path, arcname=f"{package_name}/{path.relative_to(ROOT).as_posix()}")
         readme_bytes = ("\n".join(readme_lines) + "\n").encode()
         info = tarfile.TarInfo(f"{package_name}/ARCHIVAL_PACKAGE_README.txt")

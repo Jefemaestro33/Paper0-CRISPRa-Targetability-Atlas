@@ -3,6 +3,29 @@
 Purpose: ensure the revised package satisfies the reviewer/editor request for a
 versioned, persistent, reconstructable resource.
 
+## Current status after the 2026-08-13 VM rebuild
+
+Completed:
+
+- The configured Snakemake workflow completed on the Google Cloud VM
+  `paper0-cpu-runner` (`e2-standard-8`, 300 GB disk) after rerunning
+  memory-heavy rules with serialized thread allocation.
+- Final Snakemake dry-run reported that all requested files are present and up
+  to date.
+- `analysis_stats/release_validation.txt` reports `PASS`.
+- The ignored Figure 6 BigWig intermediates were regenerated and restored
+  locally under `workflow/results/bigwig/`.
+- Primary, replicate, pooled, and matched-depth peak outputs were restored
+  locally for archival packaging.
+- VM Snakemake logs were restored locally under `workflow/logs/`.
+- The archival package and release manifest scripts now include selected
+  ignored workflow products when they are present locally.
+
+Still pending before journal resubmission:
+
+- Upload the final package to a persistent archive and update the manuscript
+  with the final release URL/DOI.
+
 ## Required before resubmission
 
 - Create a clean commit containing the revised manuscript, scripts, source
@@ -13,7 +36,7 @@ versioned, persistent, reconstructable resource.
 python3 scripts/prepare_archival_package.py
 ```
 
-- Recreate or restore ignored workflow intermediates needed to rebuild Figure 6:
+- Confirm ignored workflow intermediates needed to rebuild Figure 6 are present:
   `workflow/results/bigwig/*.bw`.
 - Rerun the full figure build:
 

@@ -1,10 +1,95 @@
 # Post-review validation log
 
-Date: 2026-08-10
+Date range: 2026-08-10 to 2026-08-13
 
 This log records the local checks run after integrating the BMC Genomics
 major-revision planning material and the exploratory human ortholog-panel ATAC
 analysis.
+
+## Full configured workflow rebuild on Google Cloud VM
+
+Date: 2026-08-13
+
+Purpose: close the local-environment blockers noted below by rebuilding the
+configured murine workflow on a machine with enough CPU, memory, and disk to
+regenerate the ignored workflow intermediates needed for final reproducibility
+and Figure 6 signal-track support.
+
+Execution environment:
+
+- Google Cloud project: `pli-biomarker`.
+- VM: `paper0-cpu-runner`, `us-east1-b`, `e2-standard-8`.
+- Disk: 300 GB persistent standard disk.
+- Project checkout used for the rebuild: commit `56f0d17`.
+- Linux lock/environment used on the VM: `environment-linux-64.lock`.
+- Python: 3.11.15.
+- Snakemake: 8.25.5.
+- `bamCoverage`: 3.5.5.
+- `Genrich`: available in the activated workflow environment.
+
+The first full run progressed to 52 of 125 jobs and failed during
+`sample_peak` for `SRR14667444` because the Genrich process was killed by the
+operating system, consistent with an out-of-memory failure under the initial
+parallel scheduling.
+
+The workflow was then resumed with memory-heavy rules effectively serialized:
+
+```bash
+snakemake -s workflow/Snakefile \
+  --cores 8 \
+  --rerun-incomplete \
+  --latency-wait 60 \
+  --printshellcmds \
+  --set-threads \
+    sample_peak=8 \
+    pooled_peak=8 \
+    primary_consensus_peak=8 \
+    primary_technical_peak=8 \
+    condition_bam_technical=8 \
+    condition_bam_biological=8 \
+    condition_bigwig=8
+```
+
+Result: the resumed run completed successfully with 73 of 73 jobs finished and
+0 errors. A final Snakemake dry-run reported:
+
+```text
+Nothing to be done (all requested files are present and up to date).
+```
+
+VM outputs produced and copied into the local working tree:
+
+- 6 of 6 condition-level BigWig tracks in `workflow/results/bigwig/`.
+- 6 of 6 primary peak files in `workflow/results/peaks/primary/`.
+- 13 replicate peak files in `workflow/results/peaks/replicate/`.
+- pooled and matched-depth peak files used for sensitivity checks.
+- 13 PDF figures and 13 PNG figure renderings.
+- VM Snakemake logs in `workflow/logs/`.
+- regenerated supplementary tables and analysis statistics.
+- regenerated `manuscript/results_macros.tex`.
+
+The primary release validator reported:
+
+```text
+PASS
+atlas_rows=647970
+genes=21599
+classes=5
+contexts=6
+therapeutic_genes=55
+candidate_rows=1262
+candidate_gene_class_groups=268
+replicate_evidence_rows=16406
+qc_run_rows=13
+qc_condition_rows=6
+tss_rows=64797
+blacklist_mm39_rows=3360
+```
+
+Interpretation: the previous local blocker for rebuilding Figure 6 signal
+intermediates and completing the full configured murine workflow is resolved.
+Large derived workflow products remain git-ignored, but they are now included
+by the local archival-package and release-manifest scripts when present.
 
 ## Checks that passed
 
@@ -178,10 +263,11 @@ runner above. The next full validation pass should still be run inside the
 pinned project environment from `environment.yml` or after installing `pytest`
 into the active environment.
 
-## Remaining validation work
+## Remaining final release work
 
-- Recreate or restore `workflow/results/bigwig/*.bw` and rerun the complete
-  figure build, including Figure 6, before final archival release if the archive
-  is intended to include derived signal tracks.
-- Run the full raw-to-result Snakemake workflow before final resubmission or
-  archival release on a machine/work directory with sufficient free disk space.
+- Build the final archival package from a clean committed tree.
+- Upload the final archive to the selected persistent repository and replace the
+  provisional data-availability language with the final DOI/release URL.
+- Optionally run the pytest command-line suite inside a pinned environment that
+  includes `pytest`; the direct assertion runner already passed the current
+  plain test functions.
