@@ -265,9 +265,39 @@ into the active environment.
 
 ## Remaining final release work
 
-- Build the final archival package from a clean committed tree.
 - Upload the final archive to the selected persistent repository and replace the
   provisional data-availability language with the final DOI/release URL.
 - Optionally run the pytest command-line suite inside a pinned environment that
   includes `pytest`; the direct assertion runner already passed the current
   plain test functions.
+
+## v2.1.0 release-packaging audit
+
+Date: 2026-08-15
+
+Actions completed:
+
+- Prepared `.zenodo.json` and updated `CITATION.cff` metadata for v2.1.0.
+- Added a companion reference-input packaging step for the compressed public
+  reference files used by the workflow.
+- Downloaded and archived:
+  - `mm39.fa.gz`: 870,543,764 bytes; SHA-256
+    `e558d498b49ee50b2ae14262f65c55b0feae733e833d1f4f0da0c0b789fffe59`.
+  - `gencode.vM33.annotation.gtf.gz`: 29,297,942 bytes; SHA-256
+    `6b0218f0c587591053a099797f049db5f6fcfa1a3cff6dae912db3e045c0fd90`.
+- Wrote the tracked reference-source audit table:
+  `reference/source_input_audit.tsv`.
+- Built the local companion reference archive:
+  `release_archives/paper0_reference_inputs_20260815T060647Z.tar.gz`.
+- Regenerated `release_manifest.sha256`; it now contains 210 hashes.
+- Re-ran the primary release validator; result: `PASS`.
+- Confirmed manuscript PDF is up to date with `latexmk`.
+- Confirmed Python syntax for release, manifest, validation, human-check,
+  targetability, statistics, and summarization scripts.
+- The local Python environments still lack the `pytest` module, but the direct
+  assertion runner executed the 13 plain `test_*` functions successfully in the
+  project scientific environment.
+
+Interpretation: the final release package now covers both the derived peak and
+signal artifacts requested by reviewers and the compressed public FASTA/GTF
+reference inputs needed to reconstruct the workflow.

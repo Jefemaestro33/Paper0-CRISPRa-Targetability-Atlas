@@ -108,7 +108,7 @@ pytest -q tests
 │   └── results_macros.tex                 # workflow-generated values
 ├── tests/
 ├── environment.yml
-├── release_manifest.sha256                # SHA-256 for every release file
+├── release_manifest.sha256                # SHA-256 for tracked and selected archived artifacts
 └── LICENSE
 ```
 
@@ -141,7 +141,8 @@ calls are explicitly labelled as lacking biological replication.
 | `analysis_stats/peak_caller_concordance.tsv` | Matched-depth Genrich/MACS3 promoter-call concordance |
 | `analysis_stats/shared_peak_signal.tsv` | Continuous counts and CPM on the shared primary-peak universe |
 | `analysis_stats/release_validation.txt` | Machine-checked release invariants and expected dimensions |
-| `release_manifest.sha256` | Cryptographic hashes for the complete non-ignored release package |
+| `release_manifest.sha256` | Cryptographic hashes for tracked files plus selected ignored archival artifacts present locally |
+| `reference/source_input_audit.tsv` | Source URLs, byte counts, and SHA-256 hashes for compressed reference inputs packaged with the release |
 
 ## Interpretation limits
 

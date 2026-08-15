@@ -1,0 +1,3 @@
+resource	archive_file	source_url	bytes	sha256	workflow_output
+GRCm39/mm39 FASTA	mm39.fa.gz	https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/mm39.fa.gz	870543764	e558d498b49ee50b2ae14262f65c55b0feae733e833d1f4f0da0c0b789fffe59	workflow/resources/mm39.fa
+GENCODE mouse vM33 annotation	gencode.vM33.annotation.gtf.gz	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.annotation.gtf.gz	29297942	6b0218f0c587591053a099797f049db5f6fcfa1a3cff6dae912db3e045c0fd90	workflow/resources/gencode.vM33.annotation.gtf

@@ -20,6 +20,9 @@ Completed:
 - VM Snakemake logs were restored locally under `workflow/logs/`.
 - The archival package and release manifest scripts now include selected
   ignored workflow products when they are present locally.
+- A companion reference-input package is prepared from compressed public
+  `mm39.fa.gz` and `gencode.vM33.annotation.gtf.gz` files, with URL, byte-count,
+  and SHA-256 provenance recorded in `reference/source_input_audit.tsv`.
 
 Still pending before journal resubmission:
 
@@ -85,6 +88,7 @@ python3 scripts/build_release_manifest.py
 - `reference/tss_selection.tsv`
 - `reference/tss_definition_summary.tsv`
 - `reference/promoters_*.bed` if present in the final source tree.
+- `reference/source_input_audit.tsv`
 
 ### Primary outputs
 

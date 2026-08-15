@@ -1,11 +1,11 @@
 # Figure visual audit
 
-Date: 2026-08-11
+Date: 2026-08-15
 
 Audit mode: visual inspection of all current main and supplementary figure PNG
-previews generated from the tracked PDF figures. This audit is intended to catch
-obvious clipping, missing labels, and reviewer-flagged readability issues before
-the final release rebuild.
+previews generated from the rebuilt PDF figures after the full VM workflow
+rebuild. This audit is intended to catch obvious clipping, missing labels, and
+reviewer-flagged readability issues before the final public release.
 
 Contact sheet used locally:
 
@@ -28,9 +28,9 @@ Contact sheet used locally:
   encoding.
 - Figure 5: passed for current revision. Candidate labels are readable in the
   vector/PDF version.
-- Figure 6: visually acceptable in the current tracked PDF and includes y-axis
-  scales. Regeneration is pending because `workflow/results/bigwig/*.bw` are not
-  present locally.
+- Figure 6: passed after the VM rebuild. The restored
+  `workflow/results/bigwig/*.bw` intermediates regenerate the track layer; the
+  tracked PDF includes y-axis scales and the CPM-normalized signal label.
 
 ## Supplementary figures
 
@@ -44,8 +44,9 @@ Contact sheet used locally:
 - Figure S6: passed.
 - Figure S7: passed.
 
-## Remaining required final audit
+## Final release status
 
-After restoring or recreating the bigWigs and rebuilding all figures, repeat the
+The reviewer-flagged figure issues are resolved in the current tracked figure
+set. If any figure script is edited again before resubmission, rerun the
 contact-sheet check and inspect Figure 6 specifically for y-axis scale, signal
 track readability, and candidate/peak overlay placement.

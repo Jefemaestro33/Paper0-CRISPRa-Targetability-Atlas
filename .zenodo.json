@@ -1,0 +1,31 @@
+{
+  "creators": [
+    {
+      "name": "Zermeño, Ernest Darell",
+      "orcid": "0000-0002-1721-4526"
+    }
+  ],
+  "title": "Genome-wide guide-site-aware CRISPRa targetability dataset and prioritization framework for murine microglial ATAC-seq contexts",
+  "version": "2.1.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "mit",
+  "description": "Versioned source, workflow, validation outputs, figures, supplementary tables, derived ATAC-seq peak and signal artifacts, and reference-input checksums supporting a genome-wide murine microglial CRISPRa guide-site targetability dataset and prioritization framework. The resource integrates promoter PAM availability with ATAC-seq peak support for complete protospacer-PAM intervals and is intended for hypothesis generation and experimental prioritization, not functional CRISPRa validation.",
+  "keywords": [
+    "CRISPRa",
+    "microglia",
+    "ATAC-seq",
+    "guide design",
+    "chromatin accessibility",
+    "targetability",
+    "murine"
+  ],
+  "language": "eng",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}

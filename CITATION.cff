@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this atlas or its code, please cite the versioned tag and the associated article."
-title: "CRISPRa guide-site targetability atlas in murine microglia"
+message: "If you use this dataset, workflow, or code, please cite the versioned tag and the associated article."
+title: "Genome-wide guide-site-aware CRISPRa targetability dataset and prioritization framework for murine microglial ATAC-seq contexts"
 type: software
 authors:
   - given-names: Ernest Darell
@@ -8,8 +8,8 @@ authors:
     orcid: "https://orcid.org/0009-0002-1721-4526"
 repository-code: "https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas"
 license: MIT
-version: 2.0.0
-date-released: 2026-07-21
+version: 2.1.0
+date-released: 2026-08-15
 keywords:
   - CRISPRa
   - microglia

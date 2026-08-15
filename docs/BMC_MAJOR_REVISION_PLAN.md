@@ -56,8 +56,8 @@ Implementation status:
 - Existing matched-depth, caller, TSS, and shared-universe signal analyses are
   retained as robustness checks that diagnose technical sensitivity but do not
   remove study confounding.
-- Remaining work: figure/legend audit to ensure every panel label matches this
-  narrowed interpretation.
+- Final status: figure legends and context labels now match this narrowed
+  interpretation.
 
 Response stance:
 
@@ -139,7 +139,7 @@ Implementation status:
 - `scripts/prepare_archival_package.py` creates a local GitHub/Zenodo-style
   tarball from tracked files and records whether bigWigs were included.
 - Remaining work: create the actual versioned GitHub/Zenodo release after the
-  final source state is approved.
+  final source state is committed and tagged.
 
 ### 4. Human data / translational relevance
 
@@ -215,8 +215,8 @@ Implementation status:
 - Background now cites established CRISPRi/a guide-design and chromatin-aware
   resources and positions Dräger et al. as the closest functional microglia
   CRISPRi/a platform.
-- Remaining work: final response letter should explicitly say that the revised
-  claim is practical/resource value, not discovery of a new CRISPRa principle.
+- Final response requirement: explicitly state that the revised claim is
+  practical/resource value, not discovery of a new CRISPRa principle.
 
 ### 6. Therapeutic 55-gene panel rationale
 
@@ -274,7 +274,8 @@ Implementation status:
 
 - Methods now describe fixed-panel bootstrap, matched-promoter sampling,
   empirical p-value calculation, random seed, and within-panel Fisher/BH family.
-- Remaining work: verify the response letter mirrors the exact Methods language.
+- Final response requirement: mirror the exact Methods language for the
+  statistical procedures.
 
 Reviewer 1 minor extension:
 
@@ -349,8 +350,9 @@ Implementation status:
 - Figure 1 and Figure 3 were regenerated and visually inspected after fixing
   terminology/spacing; Figures 1--5 can be regenerated in the local `paper0`
   environment.
-- Remaining work: recreate or restore ignored `workflow/results/bigwig/*.bw`
-  intermediates and rerun the complete figure build including Figure 6.
+- Final status: ignored `workflow/results/bigwig/*.bw` intermediates were
+  restored after the 2026-08-13 VM rebuild and are included by the packaging
+  script when present.
 
 ### 11. Reviewer 3 novelty/validation critique
 
@@ -397,13 +399,12 @@ Response stance:
 
 - Human exploratory check: integrated and documented.
 - Discretionary revision decisions: closed in `docs/REVISION_DECISIONS.md`.
-- Manuscript edits: partially integrated; title, human Results/Methods,
-  availability, terminology cleanup, panel-rationale expansion, and Cas-class
-  multiplicity reporting are in place.
-- Figure regeneration: partial; Figures 1--5 regenerated, Figure 6 requires
-  ignored bigWig intermediates or a full Snakemake rebuild; current visual
-  audit recorded in `docs/FIGURE_VISUAL_AUDIT.md`.
-- Release/Zenodo archival package: local packaging script added; actual remote
-  DOI/release pending.
+- Manuscript edits: integrated; title, human Results/Methods, availability,
+  terminology cleanup, panel-rationale expansion, Cas-class multiplicity
+  reporting, and final Results framing are in place.
+- Figure regeneration: full VM rebuild completed and current visual audit is
+  recorded in `docs/FIGURE_VISUAL_AUDIT.md`.
+- Release/Zenodo archival package: local packaging scripts are in place; actual
+  remote DOI/release pending.
 - Response letter: pending.
 - GitHub visibility/push: not changed locally; requires explicit confirmation.

@@ -149,8 +149,8 @@ states how y-axis scales are shared within gene columns. Regenerating Figure 6
 from source requires restoration or recreation of the ignored bigWig
 intermediates before the final archival rebuild.
 
-Status: addressed for the manuscript/response; final reproducibility rebuild
-pending for archival packaging if derived bigWigs are included.
+Status: addressed. The 2026-08-13 VM rebuild restored the derived BigWigs and
+the release package includes them when present locally.
 
 ## Reviewer 2
 
@@ -170,7 +170,8 @@ will deposit the revised source/output package with GitHub/Zenodo before
 resubmission. Peak files, promoter BEDs, and signal-file availability remain
 explicit release-package tasks.
 
-Status: partially addressed; archival release pending.
+Status: addressed locally; the final public GitHub/Zenodo release remains the
+last external publication step.
 
 ### Comment 3: contribution stated negatively and Dräger positioning
 
@@ -233,7 +234,7 @@ Status: addressed.
 Response draft: We moved stronger caveats into the Discussion, reduced
 overclaiming, and emphasize the interpretive limits of each analysis layer.
 
-Status: partially addressed; final text pass still recommended.
+Status: addressed by the final Results text pass.
 
 ### Presentation, hard-coded artifacts, and QC
 
@@ -242,4 +243,5 @@ validation log, and retained a release manifest. We also disclose generative-AI
 use in a short Methods statement while emphasizing author verification and
 responsibility.
 
-Status: partially addressed; full workflow/figure rebuild pending.
+Status: addressed. The full VM workflow rebuild completed, release validation
+passed, and Figure 6 intermediates were restored for archival packaging.

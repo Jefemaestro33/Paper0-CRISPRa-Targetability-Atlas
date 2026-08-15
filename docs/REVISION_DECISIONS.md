@@ -51,13 +51,10 @@ final release package is built. If they are absent, the package must explicitly
 record that Figure 6 signal tracks require a full Snakemake rebuild or restored
 workflow intermediates.
 
-Current local status: the Paper0 bigWigs are not present in this checkout, and
-Snakemake is not installed in the currently available local environments. A
-2026-08-11 ENA header check found that the compressed FASTQs alone total
-16.90 GiB, while the local filesystem had about 12 GiB available; the full
-workflow would require additional reference, index, BAM, peak-calling, and
-bigWig space. Figure 6 therefore remains a final-release rebuild dependency
-rather than a completed local artifact regeneration step.
+Current local status: the 2026-08-13 Google Cloud VM rebuild restored all six
+condition-level BigWigs locally, and the final Snakemake dry-run reported that
+all requested files were present and up to date. Figure 6 is therefore no
+longer a pending rebuild dependency for the release package.
 
 ## 5. Figures
 
@@ -75,5 +72,6 @@ Already implemented:
   inspection confirms numeric y-axis scales and a global CPM-normalized signal
   label are present.
 
-Remaining final-release action: regenerate Figure 6 after bigWigs are restored
-or recreated, then rerun the visual audit if rebuilding the release artifacts.
+Final-release action: retain the restored BigWigs in the ignored local workflow
+tree while building the release package, and rerun the visual audit only if
+figure-generation code changes again.
