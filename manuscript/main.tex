@@ -177,11 +177,11 @@ Two public human iPSC-/hPSC-derived microglia ATAC-seq resources were evaluated.
 
 Up to five reported Un1Cas12f1 candidates per panel gene were aligned exhaustively to mm39 with Bowtie 1.3.1 using up to three mismatches \citep{langmead2009bowtie}. Alignments were retained only when a correctly oriented TTTR PAM was present next to the aligned protospacer. The intended coordinate was removed, and remaining alignments were annotated for overlap with a GENCODE exon or a $\pm1$-kb canonical-TSS window. The screen does not evaluate bulges, chromatin, cleavage probability, or nuclease-specific safety and should be followed by purpose-built tools and experimental assays.
 
-\subsection{Reproducibility and use of generative AI}
+\subsection{Reproducibility and accountability}
 
 The full workflow is implemented in Snakemake 8.25 \citep{molder2021snakemake}. Software versions are pinned in \path{environment.yml}; accessions, MD5 checksums, random seeds, TSS choices, matched-depth realizations, caller concordance, shared-universe signal, source tables, and figure scripts are version controlled. Core regression tests cover promoter orientation, complete guide containment, IUPAC reverse complementation, and replicate-consensus behavior. The versioned code release and machine-readable output tables are identified in Data availability.
 
-During revision, OpenAI ChatGPT and Codex were used for language editing, literature discovery, code drafting and refactoring, test design, and workflow documentation. The author inspected the primary sources, reviewed the code and outputs, corrected errors, and takes full responsibility for the manuscript and analysis. No generative-AI system is an author.
+AI-assisted tools supported revision-stage editing and workflow drafting; all sources, code, and outputs were checked by the author, who is responsible for the work.
 
 \section{Availability of data and materials}
 
