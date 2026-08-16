@@ -1,6 +1,10 @@
-# Release v2.1.0 notes
+# Release v2.1.1 notes
 
-This release supports the BMC Genomics major-revision resubmission.
+This release supports the BMC Genomics major-revision resubmission. Version
+2.1.1 is a public-tree hygiene update to the archived 2.1.0 package: the
+scientific tables, manuscript source, figures, workflow, and validation outputs
+are unchanged, while internal revision-planning documents were removed from the
+public source tree and Zenodo creator metadata was corrected.
 
 ## Contents
 

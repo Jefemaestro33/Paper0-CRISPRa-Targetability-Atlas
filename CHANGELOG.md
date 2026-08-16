@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1 — public-tree hygiene release
+
+- Removed internal revision-planning and response-draft documents from the
+  public source tree while preserving reproducibility-facing documentation.
+- Corrected Zenodo creator ORCID metadata.
+- Regenerated the SHA-256 release manifest after the public-tree cleanup.
+
 ## 2.0.0 — guide-site-aware major revision
 
 - Replaced promoter-midpoint targetability with complete
