@@ -2,9 +2,15 @@
 
 This release supports the BMC Genomics major-revision resubmission. Version
 2.1.1 is a public-tree hygiene update to the archived 2.1.0 package: the
-scientific tables, manuscript source, figures, workflow, and validation outputs
-are unchanged, while internal revision-planning documents were removed from the
-public source tree and Zenodo creator metadata was corrected.
+scientific tables, figures, workflow, and validation outputs are unchanged,
+while internal revision-planning documents were removed from the public source
+tree and Zenodo creator metadata was corrected. The current main branch also
+records the final GitHub and Zenodo archival links after publication.
+
+Archived release:
+
+- GitHub: https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.1
+- Zenodo DOI: https://doi.org/10.5281/zenodo.21970941
 
 ## Contents
 

@@ -8,6 +8,10 @@ protospacer--PAM intervals, and asks whether each **complete interval** is
 contained in an ATAC-seq peak. It is a prioritization resource: a positive
 call does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
 
+Archived release: GitHub `v2.1.1`
+([release page](https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.1))
+and Zenodo DOI [10.5281/zenodo.21970941](https://doi.org/10.5281/zenodo.21970941).
+
 ## What the revision changes
 
 The primary analysis no longer uses coverage of an arbitrary promoter midpoint.
