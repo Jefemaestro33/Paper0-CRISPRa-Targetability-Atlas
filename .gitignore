@@ -23,7 +23,18 @@ data/
 # Reproducible workflow downloads and derived intermediates
 workflow/data/
 workflow/resources/
-workflow/results/
+workflow/results/*
+!workflow/results/peaks/
+workflow/results/peaks/*
+!workflow/results/peaks/primary/
+workflow/results/peaks/primary/*
+!workflow/results/peaks/primary/*.narrowPeak.gz
+!workflow/results/peaks/replicate/
+workflow/results/peaks/replicate/*
+!workflow/results/peaks/replicate/*.narrowPeak.gz
+!workflow/results/peaks/pooled/
+workflow/results/peaks/pooled/*
+!workflow/results/peaks/pooled/*.narrowPeak.gz
 
 # Vector PDFs are the canonical publication figures; raster previews are
 # generated locally by the same scripts and intentionally not duplicated in Git.

@@ -55,10 +55,10 @@ any-replicate support and support by at least 3 of 4 replicates.
 
 Contexts used:
 
-- `10K_rep1`
-- `31K_rep2`
-- `100K_rep3`
-- `100K2_rep4`
+- `10K_peak_file`
+- `31K_peak_file`
+- `100K_peak_file`
+- `100K2_peak_file`
 
 ## Integrated output files
 
@@ -79,7 +79,7 @@ Contexts used:
   1/4, 2/4, 3/4, and 4/4 replicate-support summaries.
 - `analysis_stats/human_ortholog_atac/gse206479_vs_gse245522_3of4_comparison.tsv`:
   cross-human-dataset comparison using GSE206479 any-context support and
-  GSE245522 >=3/4 replicate support.
+  GSE245522 >=3/4 peak-file support.
 - `analysis_stats/human_ortholog_atac/mouse_vs_gse206479_un1_comparison.tsv`:
   Un1/TTTR comparison between the murine table S2 and the first human dataset.
 - `analysis_stats/human_ortholog_atac/tfeb_alternative_tss_audit.tsv`:
@@ -89,7 +89,7 @@ Contexts used:
 
 Any-context/replicate strict targetability across the 53 mapped genes:
 
-| Cas/PAM | GSE206479 any context | GSE245522 any replicate | GSE245522 >=3/4 replicate-supported |
+| Cas/PAM | GSE206479 any context | GSE245522 any peak file | GSE245522 >=3/4 peak-file-supported |
 |---|---:|---:|---:|
 | Un1Cas12f1_TTTR | 32/53 (60.4%) | 20/53 (37.7%) | 15/53 (28.3%) |
 | SaCas9_NNGRRT | 38/53 (71.7%) | 29/53 (54.7%) | 21/53 (39.6%) |
@@ -104,7 +104,7 @@ targetability.
 ## TFEB/TFE3 interpretation
 
 The selected human `TFE3` promoter is supported in every GSE206479 context and
-every GSE245522 replicate for all five PAM classes.  The selected human
+every GSE245522 peak file for all five PAM classes.  The selected human
 `TFEB` promoter is unsupported in both human datasets for all five PAM classes.
 
 This is useful, but it must be stated precisely:

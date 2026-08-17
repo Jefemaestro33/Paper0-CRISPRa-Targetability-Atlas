@@ -8,8 +8,9 @@ authors:
     orcid: "https://orcid.org/0009-0002-1721-4526"
 repository-code: "https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas"
 license: MIT
-version: 2.1.2
-date-released: 2026-08-16
+version: 2.1.3
+date-released: 2026-08-17
+doi: 10.5281/zenodo.21970940
 keywords:
   - CRISPRa
   - microglia

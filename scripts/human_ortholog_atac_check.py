@@ -63,10 +63,10 @@ GSE245522_TAR_URL = (
     "GSE245522_RAW.tar"
 )
 GSE245522_TAR_MEMBERS = {
-    "10K_rep1": "GSM7844462_peaks_10K.narrowPeak.gz",
-    "31K_rep2": "GSM7844463_peaks_31K.narrowPeak.gz",
-    "100K_rep3": "GSM7844464_peaks_100K.narrowPeak.gz",
-    "100K2_rep4": "GSM7844465_peaks_100K2.narrowPeak.gz",
+    "10K_peak_file": "GSM7844462_peaks_10K.narrowPeak.gz",
+    "31K_peak_file": "GSM7844463_peaks_31K.narrowPeak.gz",
+    "100K_peak_file": "GSM7844464_peaks_100K.narrowPeak.gz",
+    "100K2_peak_file": "GSM7844465_peaks_100K2.narrowPeak.gz",
 }
 
 CAS_ORDER = [
@@ -938,7 +938,7 @@ def consensus_like_summary(
             rows.append(
                 {
                     "cas": cas_class,
-                    "support_rule": f"guide_site_full_in_peak_in_at_least_{threshold}_of_4_replicates",
+                    "support_rule": f"guide_site_full_in_peak_in_at_least_{threshold}_of_4_peak_files",
                     "n_genes": len(promoters),
                     "genes_with_passing_pam": sum(bool(hits_by_gene_cas[(promoter.mouse_symbol, cas_class)]) for promoter in promoters),
                     "genes_targetable": targetable,
@@ -986,7 +986,7 @@ def compare_gse206479_gse245522_3of4(
                     "cas": cas_class,
                     "gse206479_any": gse206_any,
                     "gse245522_3of4": gse245_3of4,
-                    "gse245522_max_replicate_support": max_245_support,
+                    "gse245522_max_peak_file_support": max_245_support,
                     "category": category,
                 }
             )
@@ -1179,17 +1179,17 @@ def write_report(
     lines.append(f"- mapped promoters analyzed: {len(promoters)}")
     lines.append(f"- mapping exclusions: {len(issues)} ({', '.join(issue['mouse_symbol'] for issue in issues)})")
     lines.append("")
-    lines.append("## Any-context/replicate targetability")
+    lines.append("## Any-context/peak-file targetability")
     lines.append("")
-    lines.append("| Cas/PAM | GSE206479 any context | GSE245522 any replicate | GSE245522 >=3/4 replicate-supported |")
+    lines.append("| Cas/PAM | GSE206479 any context | GSE245522 any peak file | GSE245522 >=3/4 peak-file-supported |")
     lines.append("|---|---:|---:|---:|")
     for cas_class in CAS_ORDER:
         g206 = next(row for row in gse206_summary if row["cas"] == cas_class and row["context"] == "ANY_GSE206479_context")
-        g245 = next(row for row in gse245_summary if row["cas"] == cas_class and row["context"] == "ANY_GSE245522_replicate")
+        g245 = next(row for row in gse245_summary if row["cas"] == cas_class and row["context"] == "ANY_GSE245522_peak_file")
         g245_3 = next(
             row
             for row in consensus_summary
-            if row["cas"] == cas_class and row["support_rule"] == "guide_site_full_in_peak_in_at_least_3_of_4_replicates"
+            if row["cas"] == cas_class and row["support_rule"] == "guide_site_full_in_peak_in_at_least_3_of_4_peak_files"
         )
         lines.append(
             f"| {cas_class} | {g206['genes_targetable_strict_full_site_in_peak']}/{g206['n_genes']} "
@@ -1201,7 +1201,7 @@ def write_report(
     lines.append("")
     lines.append("## TFE3/TFEB interpretation guardrail")
     lines.append("")
-    lines.append("- Selected TFE3 promoter: supported in every GSE206479 context and every GSE245522 replicate for all five PAM classes.")
+    lines.append("- Selected TFE3 promoter: supported in every GSE206479 context and every GSE245522 peak file for all five PAM classes.")
     lines.append("- Selected TFEB promoter: unsupported in both human datasets for all five PAM classes.")
     lines.append("- TFEB sensitivity: alternative GENCODE v19 TFEB TSS choices can be accessible; therefore the negative TFEB result is promoter/TSS-dependent.")
     lines.append("")
@@ -1258,8 +1258,8 @@ def main() -> None:
         sequences,
         gse245_paths,
         args.output_dir,
-        "ANY_GSE245522_replicate",
-        "ALL_GSE245522_replicates",
+        "ANY_GSE245522_peak_file",
+        "ALL_GSE245522_peak_files",
     )
     consensus = consensus_like_summary(promoters, hits_245, list(gse245_paths))
     write_rows(args.output_dir / "gse245522_consensus_like_summary.tsv", consensus)

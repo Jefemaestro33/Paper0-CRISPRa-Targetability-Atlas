@@ -14,7 +14,8 @@ while read -r doi; do
         (.message.volume // ""),
         (.message.issue // ""),
         (.message.page // (.message["article-number"] // "")),
-        ((.message.published["date-parts"][0][0] // "") | tostring)
+        ((.message.published["date-parts"][0][0] // "") | tostring),
+        ([.message.author[]? | ((.given // "") + " " + (.family // ""))] | join("; "))
       ] | @tsv'
   sleep 0.25
 done < <(rg -o 'doi=\{[^}]+' "$BIB" | sed 's/doi={//')

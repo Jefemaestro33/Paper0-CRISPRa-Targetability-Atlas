@@ -1,4 +1,4 @@
-mouse_symbol	human_symbol	cas	gse206479_any	gse245522_3of4	gse245522_max_replicate_support	category
+mouse_symbol	human_symbol	cas	gse206479_any	gse245522_3of4	gse245522_max_peak_file_support	category
 Abca1	ABCA1	Un1Cas12f1_TTTR	True	False	0	gse206479_only_vs_3of4
 Abca1	ABCA1	SaCas9_NNGRRT	True	False	0	gse206479_only_vs_3of4
 Abca1	ABCA1	SpCas9_NGG	True	False	0	gse206479_only_vs_3of4

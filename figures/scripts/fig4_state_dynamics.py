@@ -8,6 +8,13 @@ import pandas as pd
 from common import ROOT, STATE_LABELS, STATES, load_atlas, save
 
 
+TSS_COLORS = {
+    "ensembl_canonical": "#457B9D",
+    "appris_principal": "#E9C46A",
+    "legacy_most5_basic": "#2A9D8F",
+}
+
+
 def main():
     dynamics=pd.read_csv(ROOT/"supplementary/table_S5_accessibility_dynamics.csv")
     sensitivity=pd.read_csv(ROOT/"analysis_stats/therapeutic_gene_stability.tsv",sep="\t")
@@ -38,14 +45,14 @@ def main():
         base=int(rows[rows.definition=="ensembl_canonical"].tss.iloc[0])
         for j,definition in enumerate(["ensembl_canonical","appris_principal","legacy_most5_basic"]):
             value=int(rows[rows.definition==definition].tss.iloc[0])-base
-            ax.scatter(value,i+(j-1)*.16,s=70,label=definition if i==0 else None)
+            ax.scatter(value,i+(j-1)*.16,s=70,color=TSS_COLORS[definition],edgecolor="#222",linewidth=.4,label=definition if i==0 else None)
         if gene == "Tfe3":
             ax.text(-1800, i+.26, "0 bp (all definitions)", ha="right", fontsize=6.3)
         else:
             ax.text(0, i+.18, "0 bp", ha="center", fontsize=6.3)
             ax.text(-48690, i+.20, "−48,690 bp\n(APPRIS/legacy)", ha="center", fontsize=6.3)
     ax.axvline(0,color="#777",lw=.7); ax.set_ylim(-.35,1.4); ax.set_yticks([0,1]); ax.set_yticklabels(genes,fontstyle="italic"); ax.set_xlabel("TSS offset relative to Ensembl canonical")
-    ax.legend(fontsize=6.5); ax.set_title("C  TSS-definition sensitivity",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
+    ax.legend(fontsize=6.2, frameon=False); ax.set_title("C  TSS-definition sensitivity",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
 
     ax=fig.add_subplot(grid[1,1]); sub=sensitivity[sensitivity.gene.isin(genes)]
     variants=[c for c in sub.columns if c not in {"gene","state","n_variants_targetable","n_variants","unanimous"}]

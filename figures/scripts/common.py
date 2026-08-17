@@ -1,4 +1,5 @@
 """Shared plotting constants and loaders for the revised targetability figures."""
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -9,6 +10,7 @@ OUTPUT = ROOT / "figures/output"
 ATLAS = ROOT / "supplementary/table_S2_targetability_full.tsv.gz"
 PANEL = ROOT / "config/therapeutic_genes_locked.csv"
 CANDIDATES = ROOT / "supplementary/table_S3_candidate_protospacers.csv"
+KEY_COUNTS = ROOT / "analysis_stats/key_counts.json"
 STATES = ["homeostatic", "PP_control", "PL_acute_LPS", "LL_tolerized", "sham_WT", "stroke_WT"]
 STATE_LABELS = ["Gosselin\nhomeostatic", "Zhang X\nPBS/PBS", "Zhang X\nPBS/LPS", "Zhang X\nLPS/LPS", "Zhang L\nsham", "Zhang L\nstroke"]
 CAS_ORDER = ["Un1Cas12f1_TTTR", "SaCas9_NNGRRT", "SpCas9_NGG", "CjCas9_NNNVRYM", "Nme2Cas9_NNNNCC"]
@@ -36,6 +38,11 @@ def load_atlas(path=ATLAS):
 
 def load_panel():
     return pd.read_csv(PANEL)
+
+
+def load_key_counts():
+    with KEY_COUNTS.open() as handle:
+        return json.load(handle)
 
 
 def save(fig, name):

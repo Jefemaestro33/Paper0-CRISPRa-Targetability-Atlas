@@ -13,8 +13,8 @@ for script in \
   figures/scripts/figS1_qc.py \
   figures/scripts/figS2_genomewide.py \
   figures/scripts/figS3_window_comparison.py \
-  figures/scripts/figS4_motifs.py \
-  figures/scripts/figS5_go_enrichment.py \
+  figures/scripts/figS4_sensitivity.py \
+  figures/scripts/figS5_panel_associations.py \
   figures/scripts/figS6_cross_validation.py \
   figures/scripts/figS7_permutation.py
 do

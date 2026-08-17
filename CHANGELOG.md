@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.1.3 — major-revision response hardening
+
+- Added compressed primary, replicate, and pooled ATAC peak files to the
+  version-controlled resource so the primary calls can be inspected from a
+  clone without unpacking the full archival tarball.
+- Replaced hard-coded figure scope labels with generated release counts and
+  added a tracked `analysis_stats/key_counts.json` source.
+- Corrected reference metadata against Crossref, including author fields.
+- Reworked figure layout, legends, and encodings for Figures 2, 3, 4, 6, and
+  Supplementary Figure S7.
+- Expanded manuscript reporting for batch/caller sensitivity, TSS annotation
+  dependence at Tfeb/TFEB, same-study sham--stroke interpretation, human
+  GSE245522 peak-file provenance, panel curation, additional-file declarations,
+  compute requirements, and data availability.
+- Updated release validation documentation and regenerated manuscript, figures,
+  validation output, and SHA-256 manifest.
+
 ## 2.1.2 — manuscript accountability wording cleanup
 
 - Refined the manuscript reproducibility/accountability wording.

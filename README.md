@@ -8,9 +8,10 @@ protospacer--PAM intervals, and asks whether each **complete interval** is
 contained in an ATAC-seq peak. It is a prioritization resource: a positive
 call does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
 
-Archived release: GitHub `v2.1.2`
-([release page](https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.2))
-and Zenodo DOI [10.5281/zenodo.21971670](https://doi.org/10.5281/zenodo.21971670).
+Archived release: GitHub `v2.1.3`
+([release page](https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.3)).
+The Zenodo concept DOI is [10.5281/zenodo.21970940](https://doi.org/10.5281/zenodo.21970940);
+the version-specific Zenodo record is associated with the `v2.1.3` release.
 
 ## What the revision changes
 
@@ -69,6 +70,21 @@ micromamba activate paper0-atlas
 snakemake -s workflow/Snakefile --cores 8 --rerun-incomplete
 ```
 
+Expected compute envelope for a full raw-data rebuild:
+
+- approximately 17 GiB of compressed FASTQ downloads;
+- approximately 300 GB of free disk for references, BAMs, bigWigs, peaks, and intermediates;
+- at least 8 vCPU; peak calling is the memory-sensitive step.
+
+For constrained machines, serialize the peak-heavy rules:
+
+```bash
+snakemake -s workflow/Snakefile --cores 8 --rerun-incomplete \
+  --set-threads sample_peak=8 pooled_peak=8 primary_consensus_peak=8 \
+    primary_technical_peak=8 condition_bam_technical=8 \
+    condition_bam_biological=8 condition_bigwig=8
+```
+
 The workflow downloads and checksum-verifies the public FASTQs and reference
 files, performs uniform ATAC-seq processing, rebuilds all targetability tables and
 sensitivities, and regenerates the figures. Raw data, reference indexes, BAMs,
@@ -86,7 +102,7 @@ pytest -q tests
 .
 ├── config/
 │   ├── samples.tsv                         # ENA provenance and checksums
-│   └── therapeutic_genes_locked.csv       # frozen 55-gene panel metadata
+│   └── therapeutic_genes_locked.csv       # frozen panel metadata
 ├── workflow/
 │   ├── Snakefile                          # complete raw-to-figure DAG
 │   └── scripts/                           # ATAC QC, consensus, depth/caller tests
@@ -139,6 +155,8 @@ calls are explicitly labelled as lacking biological replication.
 | `table_S3_replicate_evidence.tsv` | Candidate-by-run peak support, signal, peak ID, and summit distance |
 | `table_S4_atac_qc.csv` | Per-run QC and primary-peak provenance |
 | `table_S5_accessibility_dynamics.csv` | Descriptive cross-context panel patterns |
+| `table_S6_blacklist_mm10_original.bed` | Original ENCODE mm10 blacklist intervals |
+| `table_S6_blacklist_mm39_lifted.bed` | Lifted mm39 blacklist intervals used by the workflow |
 | `table_S7_statistical_tests.csv` | Fixed-panel stability, Cas-class multiplicity, and sensitivity summaries |
 | `analysis_stats/cas_multiplicity_summary.tsv` | Genes supported by exactly 0--5 targeting classes at sequence and primary-call layers |
 | `analysis_stats/matched_depth_summary.tsv` | Requested/realized matched depth, seeds, and replicate-handling provenance |

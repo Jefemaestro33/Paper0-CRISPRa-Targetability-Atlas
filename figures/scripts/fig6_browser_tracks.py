@@ -2,6 +2,8 @@
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 import pyBigWig
@@ -48,8 +50,14 @@ def main():
             ax.set_xlim(-2500,2500); ax.spines[["top","right"]].set_visible(False); ax.tick_params(labelsize=6.3)
         axes[-1,col].set_xticks([-2500,-1250,0,1250,2500], ["−2.5","−1.25","0","1.25","2.5"])
         axes[-1,col].set_xlabel("Position relative to canonical TSS (kb)", fontsize=7.5)
+    handles=[
+        Patch(facecolor="#D1495B", alpha=.16, edgecolor="none", label="Promoter window"),
+        Line2D([0],[0], color="#D1495B", lw=2.4, label="Primary peak interval"),
+        Line2D([0],[0], color="#2A9D8F", lw=.9, label="Supported guide-site midpoint"),
+    ]
+    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5,.992), ncol=3, frameon=False, fontsize=6.7)
     fig.supylabel("CPM-normalized ATAC signal", x=.01, fontsize=8)
-    fig.subplots_adjust(left=.13, right=.985, top=.95, bottom=.07, hspace=.12, wspace=.20)
+    fig.subplots_adjust(left=.13, right=.985, top=.93, bottom=.07, hspace=.12, wspace=.20)
     save(fig,"fig6")
 
 

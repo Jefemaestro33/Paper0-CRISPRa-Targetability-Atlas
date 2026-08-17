@@ -1,0 +1,13 @@
+{
+  "n_contexts": 6,
+  "n_crispra_configurations": 6,
+  "n_genes": 21599,
+  "n_matched_depth_peak_callers": 2,
+  "n_panel": 55,
+  "n_runs": 13,
+  "n_studies": 3,
+  "n_targeting_classes": 5,
+  "n_tss_definitions": 3,
+  "permutation_resamples": 10000,
+  "permutation_seed": 1729
+}

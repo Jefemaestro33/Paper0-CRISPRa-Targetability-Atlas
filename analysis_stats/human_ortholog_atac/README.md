@@ -6,9 +6,9 @@ Primary calls require the complete protospacer+PAM interval inside a dataset pea
 - mapped promoters analyzed: 53
 - mapping exclusions: 2 (Siglech, Chil3)
 
-## Any-context/replicate targetability
+## Any-context/peak-file targetability
 
-| Cas/PAM | GSE206479 any context | GSE245522 any replicate | GSE245522 >=3/4 replicate-supported |
+| Cas/PAM | GSE206479 any context | GSE245522 any peak file | GSE245522 >=3/4 peak-file-supported |
 |---|---:|---:|---:|
 | Un1Cas12f1_TTTR | 32/53 (60.4%) | 20/53 (37.7%) | 15/53 (28.3%) |
 | SaCas9_NNGRRT | 38/53 (71.7%) | 29/53 (54.7%) | 21/53 (39.6%) |
@@ -18,7 +18,7 @@ Primary calls require the complete protospacer+PAM interval inside a dataset pea
 
 ## TFE3/TFEB interpretation guardrail
 
-- Selected TFE3 promoter: supported in every GSE206479 context and every GSE245522 replicate for all five PAM classes.
+- Selected TFE3 promoter: supported in every GSE206479 context and every GSE245522 peak file for all five PAM classes.
 - Selected TFEB promoter: unsupported in both human datasets for all five PAM classes.
 - TFEB sensitivity: alternative GENCODE v19 TFEB TSS choices can be accessible; therefore the negative TFEB result is promoter/TSS-dependent.
 

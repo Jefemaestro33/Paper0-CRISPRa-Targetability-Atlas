@@ -4,7 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 
-from common import save
+from common import load_key_counts, save
 
 
 def box(ax, x, y, text, color, width=2.55, height=0.92, fontsize=5.4):
@@ -18,15 +18,16 @@ def arrow(ax, start, end):
 
 
 def main():
+    counts = load_key_counts()
     fig, axes = plt.subplots(1, 2, figsize=(7.4, 4.35), gridspec_kw={"width_ratios": [2.35, 1]})
     ax = axes[0]
     ax.set_xlim(-0.35, 12.25); ax.set_ylim(0, 7); ax.axis("off")
-    box(ax, 1.4, 5.7, "GENCODE vM33\n21,599 genes", "#457B9D")
+    box(ax, 1.4, 5.7, f"GENCODE vM33\n{counts['n_genes']:,} genes", "#457B9D")
     box(ax, 4.45, 5.7, "Canonical TSS primary\nAPPRIS + legacy\nsensitivity", "#457B9D")
     box(ax, 7.5, 5.7, "−400 to −50 bp\nboth strands", "#457B9D")
-    box(ax, 10.55, 5.7, "5 nuclease/PAM classes\n6 CRISPRa\nconfigurations", "#264653")
+    box(ax, 10.55, 5.7, f"{counts['n_targeting_classes']} nuclease/PAM classes\n{counts['n_crispra_configurations']} CRISPRa\nconfigurations", "#264653")
     for x in (2.72, 5.77, 8.82): arrow(ax, (x, 5.7), (x+0.4, 5.7))
-    box(ax, 1.4, 3.7, "13 public\nATAC-seq runs\n3 studies; 6 contexts", "#E76F51")
+    box(ax, 1.4, 3.7, f"{counts['n_runs']} public\nATAC-seq runs\n{counts['n_studies']} studies; {counts['n_contexts']} contexts", "#E76F51")
     box(ax, 4.45, 3.7, "Uniform trim + mm39\nalignment\ndeduplicate/filter", "#E76F51")
     box(ax, 7.5, 3.7, "Replicate consensus\ntechnical pools\nexplicitly labelled", "#C8553D")
     box(ax, 10.55, 3.7, "Matched depth\nGenrich + MACS3", "#C8553D")
@@ -38,7 +39,16 @@ def main():
     ax.set_title("A  Corrected analysis architecture", loc="left", weight="bold", fontsize=9)
 
     ax = axes[1]; ax.axis("off")
-    stats = [("21,599", "protein-coding promoters"), ("5", "nuclease/PAM classes"), ("6", "CRISPRa configurations"), ("6", "surveyed dataset contexts"), ("13", "raw sequencing runs"), ("55", "locked therapeutic genes"), ("3", "TSS definitions"), ("2", "matched-depth peak callers")]
+    stats = [
+        (f"{counts['n_genes']:,}", "protein-coding promoters"),
+        (str(counts["n_targeting_classes"]), "nuclease/PAM classes"),
+        (str(counts["n_crispra_configurations"]), "CRISPRa configurations"),
+        (str(counts["n_contexts"]), "surveyed dataset contexts"),
+        (str(counts["n_runs"]), "raw sequencing runs"),
+        (str(counts["n_panel"]), "locked panel genes"),
+        (str(counts["n_tss_definitions"]), "TSS definitions"),
+        (str(counts["n_matched_depth_peak_callers"]), "matched-depth peak callers"),
+    ]
     for i, (number, label) in enumerate(stats):
         y = 0.93 - i*0.115
         ax.text(0.27, y, number, transform=ax.transAxes, ha="right", va="center", fontsize=12, weight="bold", color="#264653")

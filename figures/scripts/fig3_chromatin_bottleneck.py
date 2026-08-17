@@ -17,21 +17,30 @@ def main():
     pam=100*(one[one.state==STATES[0]].protospacers_total_passing>0).mean()
     target=one.groupby("state").targetable.mean().mul(100)
 
-    fig=plt.figure(figsize=(7.4,8.9)); grid=fig.add_gridspec(2,2,height_ratios=[.68,2.45],wspace=.40,hspace=.34)
+    fig=plt.figure(figsize=(7.4,9.1)); grid=fig.add_gridspec(2,2,height_ratios=[.70,2.45],wspace=.40,hspace=.42)
     ax=fig.add_subplot(grid[0,0]); x=np.arange(6); width=.36
     ax.bar(x-width/2,[pam]*6,width,label="Passing TTTR protospacer",color="#A8DADC",edgecolor="black",lw=.5)
     ax.bar(x+width/2,[target[s] for s in STATES],width,label="Complete guide site in primary peak",color=COLORS[PRIMARY],edgecolor="black",lw=.5)
     for i,state in enumerate(STATES): ax.text(i+width/2,target[state]+1,f"{target[state]:.1f}",ha="center",fontsize=8)
     short_states = ["Homeo.", "PBS/PBS", "PBS/LPS", "LPS/LPS", "Sham", "Stroke"]
     ax.set_xticks(x); ax.set_xticklabels(short_states,fontsize=6.2,rotation=25,ha="right"); ax.set_ylabel("Therapeutic panel (%)", fontsize=7.5, labelpad=2); ax.set_ylim(0,105)
-    ax.legend(fontsize=5.8, loc="upper left"); ax.set_title("A  Sequence versus guide-site support",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
+    ax.legend(fontsize=5.5, loc="upper center", bbox_to_anchor=(0.5,1.55), ncol=1, frameon=False)
+    ax.set_title("A  Sequence versus guide-site support",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
 
     ax=fig.add_subplot(grid[0,1])
+    line_styles={
+        "Un1Cas12f1_TTTR": {"marker":"o","lw":1.8,"ms":4.5,"ls":"-","alpha":1.0},
+        "SaCas9_NNGRRT": {"marker":"s","lw":1.8,"ms":4.2,"ls":"-","alpha":1.0},
+        "SpCas9_NGG": {"marker":"^","lw":1.8,"ms":4.4,"ls":"-","alpha":1.0},
+        "CjCas9_NNNVRYM": {"marker":"D","lw":3.0,"ms":5.0,"ls":"--","alpha":0.95},
+        "Nme2Cas9_NNNNCC": {"marker":"o","lw":1.3,"ms":3.2,"ls":"-","alpha":1.0},
+    }
     for cas in CAS_ORDER:
         values=[100*subset[(subset.cas==cas)&(subset.state==state)].targetable.mean() for state in STATES]
-        ax.plot(range(6),values,marker="o",lw=1.8,color=COLORS[cas],label=CAS_LABELS[cas].replace("\n"," "))
+        ax.plot(range(6),values,color=COLORS[cas],label=CAS_LABELS[cas].replace("\n"," "),**line_styles[cas])
     ax.set_xticks(range(6)); ax.set_xticklabels(short_states,fontsize=6.2,rotation=25,ha="right"); ax.set_ylabel("Targetable panel (%)", fontsize=7.5, labelpad=2)
-    ax.legend(fontsize=5.2,ncol=1,loc="upper left"); ax.set_title("B  Five nuclease/PAM classes",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
+    ax.legend(fontsize=4.9,ncol=2,loc="upper center",bbox_to_anchor=(0.5,1.62),frameon=False)
+    ax.set_title("B  Five nuclease/PAM classes",loc="left",weight="bold",fontsize=9); ax.spines[["top","right"]].set_visible(False)
 
     ax=fig.add_subplot(grid[1,:])
     matrix=one.pivot(index="gene",columns="state",values="targetable").reindex(index=panel.gene_symbol,columns=STATES).fillna(False)
@@ -41,7 +50,7 @@ def main():
     ax.set_xticks(range(6)); ax.set_xticklabels(STATE_LABELS,fontsize=7); ax.set_yticks(range(len(matrix))); ax.set_yticklabels(matrix.index,fontsize=5.8)
     for gene in ("Tfeb","Tfe3"):
         if gene in matrix.index: ax.get_yticklabels()[list(matrix.index).index(gene)].set_color("#D1495B"); ax.get_yticklabels()[list(matrix.index).index(gene)].set_weight("bold")
-    ax.set_title("C  Guide-specific Un1Cas12f1 support for all 55 locked genes",loc="left",weight="bold",fontsize=9)
+    ax.set_title(f"C  Guide-specific Un1Cas12f1 support for all {len(panel)} locked genes",loc="left",weight="bold",fontsize=9)
     save(fig,"fig3")
 
 
