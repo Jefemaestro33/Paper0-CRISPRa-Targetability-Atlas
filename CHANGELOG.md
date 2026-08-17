@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2 — manuscript accountability wording cleanup
+
+- Refined the manuscript reproducibility/accountability wording.
+- Rebuilt the manuscript PDF and SHA-256 release manifest.
+- Repackaged the archival release from the updated public source tree.
+
 ## 2.1.1 — public-tree hygiene release
 
 - Removed internal revision-planning and response-draft documents from the
