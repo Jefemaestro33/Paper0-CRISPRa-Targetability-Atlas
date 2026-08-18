@@ -1,8 +1,9 @@
-# Validation log for revision package v2.1.3
+# Validation log for revision package v2.1.4
 
 Date: 2026-08-17
 
-This log records the local validation steps run after the v2.1.3 cleanup. The
+This log records the local validation steps run after the v2.1.4 citation and
+integrity audit. The
 goal was to verify that the revised manuscript, figure code, source tables, peak
 artifacts, and release checks are internally consistent before creating the
 final GitHub/Zenodo release.
@@ -21,6 +22,24 @@ conda run -n paper0 bash scripts/build_figures.sh
 ```
 
 Result: PASS. Regenerated all main and supplementary PDF/PNG figures.
+
+```bash
+conda run -n paper0 python scripts/audit_reference_metadata.py manuscript/references.bib
+```
+
+Result: PASS. Thirty DOI-backed BibTeX entries were checked against Crossref for
+title, journal, volume, pages/article number, year, and explicitly listed author
+metadata. The two non-DOI entries (`genrich2019`, `krueger2015trimgalore`) were
+retained as software/provenance references.
+
+```bash
+conda run -n paper0 python scripts/audit_manuscript_integrity.py --repo .
+```
+
+Result: PASS. The audit checked first-citation order for Figures 1--6 and
+Supplementary Figures S1--S7, presence of Table S1--S7 citations, figure
+script/output mapping for all 13 figures, Additional-file paths, and common
+revision-residue patterns.
 
 ```bash
 conda run -n paper0 latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex

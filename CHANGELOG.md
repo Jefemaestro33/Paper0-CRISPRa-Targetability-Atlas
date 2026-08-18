@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.4 — final citation and integrity audit
+
+- Corrected remaining Crossref-audited author metadata in `settembre2011tfeb`
+  and added the SAMtools group author.
+- Added missing issue metadata for DOI-backed references where Crossref reports
+  an issue number.
+- Reordered the first citation of Figures 5 and 6 so main figures are first
+  cited sequentially.
+- Added an explicit manual-selection procedure for the frozen curated panel.
+- Added reusable reference-metadata and manuscript-integrity audit scripts.
+- Rebuilt the manuscript, validation outputs, release manifest, and archival
+  package after the audit.
+
 ## 2.1.3 — major-revision response hardening
 
 - Added compressed primary, replicate, and pooled ATAC peak files to the
