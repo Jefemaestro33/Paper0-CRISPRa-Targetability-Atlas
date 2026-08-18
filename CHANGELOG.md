@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.5 — final archival consistency release
+
+- Restored local ignored archival artifacts from the published v2.1.4 package so
+  the release manifest verifies completely before repackaging.
+- Prevented duplicate tracked peak files in the archival tarball when the same
+  files also match optional release globs.
+- Clarified that candidate outputs are split across Tables S3a--S3c.
+- Rebuilt and revalidated manuscript, figures, manifest, and archival packages.
+
 ## 2.1.4 — final citation and integrity audit
 
 - Corrected remaining Crossref-audited author metadata in `settembre2011tfeb`

@@ -123,7 +123,7 @@ def audit_risk_patterns(repo: Path) -> list[str]:
         repo / "README.md",
         repo / "CITATION.cff",
         repo / ".zenodo.json",
-        repo / "docs" / "RELEASE_NOTES_v2.1.4.md",
+        repo / "docs" / "RELEASE_NOTES_v2.1.5.md",
     ]
     for path in active_paths:
         if not path.exists():

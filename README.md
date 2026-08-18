@@ -8,10 +8,10 @@ protospacer--PAM intervals, and asks whether each **complete interval** is
 contained in an ATAC-seq peak. It is a prioritization resource: a positive
 call does not demonstrate CRISPRa efficacy, safety, or therapeutic benefit.
 
-Archived release: GitHub `v2.1.4`
-([release page](https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.4)).
+Archived release: GitHub `v2.1.5`
+([release page](https://github.com/Jefemaestro33/Paper0-CRISPRa-Targetability-Atlas/releases/tag/v2.1.5)).
 The Zenodo concept DOI is [10.5281/zenodo.21970940](https://doi.org/10.5281/zenodo.21970940);
-the version-specific Zenodo record is associated with the `v2.1.4` release.
+the version-specific Zenodo record is associated with the `v2.1.5` release.
 
 ## What the revision changes
 

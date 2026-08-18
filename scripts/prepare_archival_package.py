@@ -89,7 +89,11 @@ def main() -> None:
     sha_path = outdir / f"{tar_path.name}.sha256"
 
     files = tracked_files()
-    optional_files = optional_release_files()
+    tracked_set = set(files)
+    optional_files = [
+        path for path in optional_release_files()
+        if path.relative_to(ROOT) not in tracked_set
+    ]
     present_bigwigs = [path for path in BIGWIGS if path.exists()]
     missing_bigwigs = [path for path in BIGWIGS if not path.exists()]
 

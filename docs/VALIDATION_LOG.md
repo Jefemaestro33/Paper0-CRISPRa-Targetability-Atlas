@@ -1,12 +1,12 @@
-# Validation log for revision package v2.1.4
+# Validation log for revision package v2.1.5
 
 Date: 2026-08-17
 
-This log records the local validation steps run after the v2.1.4 citation and
-integrity audit. The
-goal was to verify that the revised manuscript, figure code, source tables, peak
-artifacts, and release checks are internally consistent before creating the
-final GitHub/Zenodo release.
+This log records the local validation steps run after the v2.1.5 archival
+consistency audit. The goal was to verify that the revised manuscript, figure
+code, source tables, peak artifacts, ignored archival artifacts, and release
+checks are internally consistent before creating the final GitHub/Zenodo
+release.
 
 ## Commands run
 
